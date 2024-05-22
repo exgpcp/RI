@@ -7,7 +7,7 @@ library(DEoptim)
 library(pracma)
 library(TruncatedNormal)
 library(matrixcalc) # is.positive.definite
-library(matlib)
+#library(matlib)
 library(Matrix)
 library(base)
 library(mvtnorm)
