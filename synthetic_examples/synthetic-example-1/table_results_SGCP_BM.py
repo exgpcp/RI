@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # coding: utf-8
-
 from scipy.stats import expon
 from scipy.stats import uniform
 from scipy.stats import norm
@@ -47,7 +46,6 @@ for jjj in range(200):
     l2_dist1_1[jjj]=l2_dist1
     coverage1_1[jjj]=coverage1
     width1_1[jjj]=width1
-
     l2_dist1_2[jjj]=l2_dist2
     coverage1_2[jjj]=coverage2
     width1_2[jjj]=width2
