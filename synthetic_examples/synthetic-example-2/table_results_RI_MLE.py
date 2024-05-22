@@ -29,6 +29,7 @@ width2_2=np.zeros((300,1))
 for jjj in range(300):
     print(jjj)
     data = np.load('/output/simulation/mymethodfinal3/ESSsyn2_truthmle'+str(jjj+301)+'.npz')
+    c=math.ceil((jjj+1)/100)
     g_mk_list3=data['aaa']
     g_mk_list2=data['aa']
     g_mk_list=data['a']
