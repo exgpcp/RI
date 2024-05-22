@@ -1,0 +1,6 @@
+The redwoods dataset is obtained from Rpackage 'spatstat' via the following lines of Rcode.
+install.packages('spatstat')
+library(spatstat)
+data(redwoodfull)
+str(redwoodfull)
+plot(redwoodfull$x,redwoodfull$y)
