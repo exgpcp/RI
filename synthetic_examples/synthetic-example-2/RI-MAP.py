@@ -187,5 +187,5 @@ integral_truth=50*c
 integral_mean=np.mean(g_mk_list3)
 integral_sd=np.sqrt(np.cov(g_mk_list3))
 
-np.savez('/output/simulation/syn2map/ESSsyn2_priormle'+sys.argv[1]+'.npz', aaa=g_mk_list3,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,b=x,e=intensity,f=coverage,g=theta0,h=theta1,i=noise_var,j=l_2norm,m=integral_truth,n=integral_mean,o=integral_sd,p=timerun1,q=timerun2)
+np.savez('/output/simulation/mymethodfinal3/ESSsyn2_priormle'+sys.argv[1]+'.npz', aaa=g_mk_list3,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,b=x,e=intensity,f=coverage,g=theta0,h=theta1,i=noise_var,j=l_2norm,m=integral_truth,n=integral_mean,o=integral_sd,p=timerun1,q=timerun2)
 
