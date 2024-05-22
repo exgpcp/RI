@@ -1,3 +1,8 @@
-syndata_generate.R includes Rcode to generate 900 synthetic datasets, which are saved as syndata.zip.
-INLA_synthetic.R is used to perform INLA algorithm on those 900 synthetic datasets.
-
+syndata_generate.R includes Rcode to generate 600 synthetic datasets, which are saved as syndata.zip.
+INLA_synthetic.R is used to perform INLA algorithm on those 600 synthetic datasets.
+data_1.rda - data_100.rda correponds to intensity function \lambda_1.
+data_101.rda - data_200.rda correponds to intensity function 2*\lambda_1.
+data_201.rda - data_300.rda correponds to intensity function 3*\lambda_1.
+data_301.rda - data_400.rda correponds to intensity function \lambda_2.
+data_401.rda - data_500.rda correponds to intensity function 2*\lambda_2.
+data_501.rda - data_600.rda correponds to intensity function 3*\lambda_2.
