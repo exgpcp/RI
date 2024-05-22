@@ -6,3 +6,5 @@ data_201.rda - data_300.rda correponds to intensity function 3*\lambda_1.
 data_301.rda - data_400.rda correponds to intensity function \lambda_2.
 data_401.rda - data_500.rda correponds to intensity function 2*\lambda_2.
 data_501.rda - data_600.rda correponds to intensity function 3*\lambda_2.
+
+Hyperparameter estimates are saved in MAP folder or MLE.rda.
