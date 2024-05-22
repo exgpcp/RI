@@ -1,15 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[12]:
-
-
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[2]:
-
-
 from scipy.stats import expon
 from scipy.stats import uniform
 from scipy.stats import norm
@@ -23,7 +11,6 @@ from scipy.stats import truncnorm
 import math
 from scipy.stats import mvn
 np.set_printoptions(suppress=True)
-
 import pyreadr
 import time
 import sys
@@ -33,8 +20,6 @@ points_inhomo=list(data['a'])
 
 theta0= 4.135945
 theta1=4.756541e-05
-# In[5]:
-
 
 def expo_quad_kernel(theta0,theta1,xn,xm): # 1,0.1
     return theta0*np.exp(-theta1/2*np.sum((xn - xm)**2))
@@ -42,35 +27,22 @@ def expo_quad_kernel(theta0,theta1,xn,xm): # 1,0.1
 def expo_quad_kernel2(theta0,theta1,xn,T): # 1,0.1
     return np.sqrt(np.pi/2/theta1)*theta0*(math.erf(np.sqrt(theta1/2)*(T-xn))+math.erf(np.sqrt(theta1/2)*xn))
 
-
-
 def expo_quad_kernel3(theta0,theta1,T): # 1,0.1
     return 2*theta0/theta1*(np.sqrt(np.pi*theta1/2)*T*math.erf(np.sqrt(theta1/2)*T)+ np.exp(-theta1/2*(T**2)) -1)
 
-
-
 T=365
-
-# ## MCMC inference
 
 def chol_sample(mean, cov_chol):
     #return mean + np.linalg.cholesky(cov) @ np.random.standard_normal(mean.size)
     return mean + cov_chol @ np.random.standard_normal(mean.size)
 
-
 def log_lik(f,ns):
-    #x=pdf_params[0]
-    #ns=pdf_params[1]
-    #pr=scipy.stats.norm.logpdf(x[:,1],mu_y+rho0*math.sqrt(sigmasq_y)/math.sqrt(sigmasq_x)*(x[:,0]-mu_x) ,math.sqrt(sigmasq_y*(1-rho0**2)))
-    
     if np.prod(f>0)==0:
         return float('-inf') 
     else:
         #print(f[:,0:ns].shape)
         return np.sum(np.log(f[:,Ngrid:Ngrid+ns]))-f[:,Ngrid+ns]
     
-    
-
 def elliptical_slice(initial_theta,prior,lnpdf,pdf_params=(),
                      cur_lnpdf=None,angle_range=None):
     """
@@ -140,7 +112,6 @@ def elliptical_slice(initial_theta,prior,lnpdf,pdf_params=(),
         phi = np.random.uniform()*(phi_max - phi_min) + phi_min
     return (xx_prop,cur_lnpdf)
 
-#GP_regression_ess(points_inhomo,g_mk,theta0,theta1,noise_var,rang,num_points,cov_K_noise)
 def GP_regression_ess(xi,yi,theta0,theta1,rang,num_points,cov):
     N=len(yi)
    
@@ -172,20 +143,12 @@ def GP_regression_ess(xi,yi,theta0,theta1,rang,num_points,cov):
     return x1[:num_points],mean, posterior_cov
 
 
-
-
 K=len(points_inhomo)
 N=K+1
 Ngrid=100
 xxx=np.linspace(0,T,Ngrid+1)[:Ngrid] 
-
-
-#g_mk=chol_sample(mean=np.zeros(N), cov=cov_K, jit=noise_var)
 g_mk=3+np.zeros((Ngrid+K+1))## 0--(Ngrid-1) Ngrid--(Ngrid+K-1) observe K--last unobserve +integral term
-
 g_mk[Ngrid+K]=3*T
-
-
  
 Nfinal=Ngrid+N
 x4=np.concatenate([xxx, points_inhomo])
@@ -205,12 +168,10 @@ for i in range(Nfinal):
                 cov_K[j][i]=cov_K[i][j]
 
 cov_K_noise=cov_K
-
 min_eig=np.min(np.real(np.linalg.eigvals(cov_K_noise)))
 while(min_eig<1e-10):
     cov_K_noise += np.eye(Nfinal)*noise_var
-    min_eig=np.min(np.real(np.linalg.eigvals(cov_K_noise)))
-    
+    min_eig=np.min(np.real(np.linalg.eigvals(cov_K_noise)))  
 cov_K_chol=np.linalg.cholesky(cov_K_noise)
 
 for ite in range(nsim1):
@@ -243,7 +204,6 @@ plt.title('Earthquake dataset with RI-MAP fit',y=-0.2)
 plt.legend()
 plt.savefig("/output/graphs/real2/Priormle_median.pdf",bbox_inches='tight')
 plt.show()
-
 
 plt.figure()
 plt.hist(g_mk_list3,bins=20)
