@@ -17,6 +17,7 @@ nam <- paste0("data_",args[1])#args[1] range from 301 to 400
 points_inhomo=get(nam)
 N=length(points_inhomo)
 T2=5
+cc=1 #cc=2 corresponds to the second 100 datasets in the second synthetic example
 
 expo_quad_kernel<-function(theta00,theta11,xn,xm){ # 1,0.1
   return(theta00*exp(-theta11/2*sum((xn - xm)**2)))
@@ -66,6 +67,5 @@ groundest<-function(c,func,T,u1,u2,noise_var){
   return(out$optim$bestmem)
 }
 
-cc=1 #cc=2 corresponds to the second 100 datasets in the second synthetic example
 a=groundest(cc,inten2,T2,1000,10,1e-5)
 save(a, file =paste0( "/groundest/func2_s1_groundest",args[1],".rda"))
