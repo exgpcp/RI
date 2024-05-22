@@ -13,6 +13,14 @@ import math
 import pyreadr
 import time
 import sys
+import pickle
+
+T=50
+data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')
+points_inhomo = list(np.array(data["dataa"]).squeeze())
+c=math.ceil(int(sys.argv[1])/100)
+measure_sup=3*c
+noise_var=1e-4
 
 def expo_quad_kernel(xn,xm): # 1,0.1
     return min(xn,xm)
@@ -82,13 +90,6 @@ def GP_regression_one_pred(xi,yi,tau,noise_var,x_pred):
     std_dev=np.sqrt(var)
     return mean,std_dev
 
-T=50
-data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')
-points_inhomo = list(np.array(data["dataa"]).squeeze())
-c=math.ceil(int(sys.argv[1])/100)
-measure_sup=3*c
-noise_var=1e-4
-
 def sampling_M(M,s_m,g_mk,measure_sup,T,tau,noise_var):
     temp=uniform.rvs(0,1)
     if temp<=0.5: ## M-->M+1
@@ -135,7 +136,7 @@ def sampling_s_m(M,s_m,g_mk,measure_sup,T,tau,noise_var):
             assert len(g_mk)==M+K
     return M, s_m, g_mk
 
-M=20    ## initial
+M=20  
 K=len(points_inhomo)
 s_m=np.linspace(1,T-1,M)
 g_mk=np.zeros((M+K))## 0--(K-1) observe K--last unobserve
@@ -220,8 +221,8 @@ nsim2=10000
 tau=np.exp(4)
 alpha=0.1
 beta=0.1
-#rem=1
 noise_var=1e-4
+
 start_time1=time.time()
 for k in range(nsim1):
     M,s_m,g_mk=sampling_M(M,s_m,g_mk.squeeze(),measure_sup,T,tau,noise_var)
@@ -297,7 +298,6 @@ inten_est2=measure_sup/(1+np.exp(-np.array(g_mk_list2)))
 low=np.quantile(inten_est2, 0.025, axis=0)
 med=np.quantile(inten_est2, 0.5, axis=0)
 high=np.quantile(inten_est2, 0.975, axis=0)
-
 truth=2*np.exp(-np.array(xxx)/15)+np.exp(-((np.array(xxx)-25)/10)**2)
 truth=c*truth
 l2_dist2=sum((np.array(med).squeeze()-truth)**2)
@@ -307,12 +307,8 @@ width2=sum(high-low)/Ngrid
 np.savez('/output/simulation/adam1_1/BM/syn1/syn1_BM_'+sys.argv[1]+'.npz', aaa=M_list,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,
     e=tau_list,g=measure_sup,h=noise_var,i=coverage1,j=coverage2,k=l2_dist1,l=l2_dist2,m=width1,n=width2,o=timerun1,p=timerun2)
 
-import pickle
 with open("/output/simulation/adam1_1/BM/syn1/BM1_"+sys.argv[1]+".bin", "wb") as output:
     pickle.dump(g_mk_list, output)
-
-#with open("/output/nut/plot/AdamMH.bin", "rb") as data:
-#    g_mk_list = pickle.load(data)
 
 with open("/output/simulation/adam1_1/BM/syn1/BM2_"+sys.argv[1]+".bin", "wb") as output:
     pickle.dump(s_m_list, output)
