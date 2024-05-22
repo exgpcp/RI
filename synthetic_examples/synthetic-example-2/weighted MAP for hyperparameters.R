@@ -1,6 +1,6 @@
 #!/usr/bin/Rscript
 #####################weighted MAP##############################################
-###################for the 300 datasets in the second synethetic example######################
+###################for the 300 datasets in the second synthetic example######################
 args = commandArgs(trailingOnly=TRUE)
 library(parallel)
 library(DEoptim)
