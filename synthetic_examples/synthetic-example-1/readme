@@ -4,4 +4,15 @@ RI_BM.py includes python codes for our proposed random integral method with Brow
 RI_MAP.py includes python codes for our proposed random integral method with weighted MAP for hyperparameters in squared exponential kernels.
 RI_MLE.py includes python codes for our proposed random integral method with Oralce MLE for hyperparameters in squared exponential kernels.
 Similarly, SGCP_*.py include python codes for the data augmentation via thinning method in Adam et al. (2009).
+
+We apply the above codes to each synthetic dataset included in syndata.zip via .slurm shell files. Check details in the following two .slurm files.
+
+
+
+
+
+
+
+
+
 table_results_*.py include python codes for results presentation in tables of our paper. 
