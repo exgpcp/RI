@@ -1,1 +1,3 @@
-the real example for recurrent earthquake data in section 3.2
+The real example for recurrent earthquake data in section 3.2.
+"earthquake_recurrent_BM.py" includes python codes for our proposed random integral method with Brownian motion covariance kernels (RI-BM).
+"earthquake_recurrent_MAP.py" includes python codes for our proposed random integral method with squared exponential kernels (RI-MAP).
