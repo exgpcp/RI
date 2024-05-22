@@ -1,20 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
-
-
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[2]:
-
-
-#!/usr/bin/env python
-# coding: utf-8
-
-
-
 from scipy.stats import expon
 from scipy.stats import uniform
 from scipy.stats import norm
@@ -28,75 +14,39 @@ from scipy.stats import truncnorm
 import math
 from scipy.stats import mvn
 np.set_printoptions(suppress=True)
-
 import pyreadr
 import time
 import sys
-#mvn.mvnun(np.ones(D)*float("-Inf"),np.zeros(D),np.zeros(D),cov_K_noise)[0]
 
-
-
-
-# In[ ]:
-
-
-data = pyreadr.read_r('/scratch/groups/juliapr/output_Bingjing/data2/data_'+sys.argv[1]+'.rda')
+data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')
 points_inhomo = np.array(data["dataa"]).squeeze()
-
-#hyperpara=(pyreadr.read_r('/scratch/groups/juliapr/output_Bingjing/priorestnew3/func2_priorest'+str(jjj)+'.rda')["b"]).squeeze()
-
-#theta0=hyperpara[0]
-#theta1=hyperpara[1]
-
-# ## simulation
-
-# In[6]:
-
-
-
 T=5
 bin_num=1000
 x=np.linspace(T/bin_num/2,T-T/bin_num/2,bin_num)
-
 c=math.ceil(int(sys.argv[1])/100)-3
+
 def inten2(t):
     return 10+t-t
-
 intensity=inten2(x)*c
 
-def expo_quad_kernel(xn,xm): # 1,0.1
+def expo_quad_kernel(xn,xm): 
     return min(xn,xm)
 
-def expo_quad_kernel2(xn,T): # 1,0.1
+def expo_quad_kernel2(xn,T): 
     return (T*xn-0.5*xn**2)
-
-
-
-def expo_quad_kernel3(T): # 1,0.1
+    
+def expo_quad_kernel3(T): 
     return (T**3/3)
 
-
-# ## MCMC inference
-
-# In[7]:
-
-
 def chol_sample(mean, cov_chol):
-    #return mean + np.linalg.cholesky(cov) @ np.random.standard_normal(mean.size)
     return mean + cov_chol @ np.random.standard_normal(mean.size)
 
-
 def log_lik(f,ns):
-    #x=pdf_params[0]
-    #ns=pdf_params[1]
-    #pr=scipy.stats.norm.logpdf(x[:,1],mu_y+rho0*math.sqrt(sigmasq_y)/math.sqrt(sigmasq_x)*(x[:,0]-mu_x) ,math.sqrt(sigmasq_y*(1-rho0**2)))
-
     if np.prod(f>0)==0:
         return float('-inf') 
     else:
         #print(f[:,0:ns].shape)
         return np.sum(np.log(f[:,Ngrid:Ngrid+ns]))-f[:,Ngrid+ns]
-
 
 def elliptical_slice(initial_theta,prior,lnpdf,pdf_params=(),
                      cur_lnpdf=None,angle_range=None):
@@ -167,27 +117,16 @@ def elliptical_slice(initial_theta,prior,lnpdf,pdf_params=(),
         phi = np.random.uniform()*(phi_max - phi_min) + phi_min
     return (xx_prop,cur_lnpdf)
 
-
 K=len(points_inhomo)
 N=K+1
 Ngrid=100
 xxx=np.linspace(0,T,Ngrid+1)[1:Ngrid+1] 
-
-
-#g_mk=chol_sample(mean=np.zeros(N), cov=cov_K, jit=noise_var)
 g_mk=c*7+np.zeros((Ngrid+K+1))## 0--(Ngrid-1) Ngrid--(Ngrid+K-1) observe K--last unobserve +integral term
-
 g_mk[Ngrid+K]=35*c
-#print(g_mk)
-
 Nfinal=Ngrid+N
-
 x4=np.concatenate([xxx, points_inhomo])
-
-
 cov_K=np.zeros((Nfinal,Nfinal))
 noise_var=1e-5
-
 theta=np.exp(4)
 rem=1
 alpha=.1
@@ -203,37 +142,24 @@ for i in range(Nfinal):
         if j!=i:
             cov_K[j][i]=cov_K[i][j]
 
-
-
 cov_K_inv=np.linalg.inv(cov_K+np.eye(Nfinal)*noise_var)
-
 ones_vec=np.ones(Nfinal)
 ones_vec[Nfinal-1]=T
 ones_vec=ones_vec.reshape(Nfinal,1)
 cov_K_mod_inv=cov_K_inv-cov_K_inv@ones_vec@ones_vec.transpose()@cov_K_inv/(ones_vec.transpose()@cov_K_inv@ones_vec)
-
-#=cov_K_mod_inv
-#cov_K_mod_inv_add[0,0]=cov_K_mod_inv_add[0,0]+1e-7
-
 cov_K_mod_inv_add=cov_K_mod_inv+np.eye(Nfinal)*noise_var
-
 cov_K_mod=np.linalg.inv(cov_K_mod_inv_add)
-
 cov_K_mod_chol=np.linalg.cholesky(cov_K_mod) 
 
 nsim1=10000
 nsim2=50000
-#L_inv=np.linalg.cholesky(cov_K_inv_add)
-#cov_K_chol=np.linalg.inv(L_inv)
- 
 g_mk_list=[]
 g_mk_list2=[]
 g_mk_list3=[]
 theta_list=[]
-#theta=0.01
+
 start_time=time.time()
 for ite in range(nsim1+nsim2):
-    #print(ite)#cov_K is the covariance matrix
     cov_K_chol_final=cov_K_mod_chol/np.sqrt(theta)
     prior=chol_sample(mean=np.zeros(Nfinal), cov_chol=cov_K_chol_final)#nu
     g_mk,curloglike=elliptical_slice(g_mk.reshape(1,-1),prior,log_lik,pdf_params=[K],cur_lnpdf=None,angle_range=None)
@@ -243,13 +169,9 @@ for ite in range(nsim1+nsim2):
     alpha_pos=alpha+Nfinal/2
     beta_pos=beta+1/2*g_mk[0]@cov_K_mod_inv@g_mk[0]
     theta=np.random.gamma(alpha_pos, 1/beta_pos,1)
-    theta_list.append(theta)
-        #print(beta_pos)
-        #print(theta)
-
+    theta_list.append(theta)      
 timerun=time.time()-start_time
 
-# In[ ]:
 low=np.quantile(g_mk_list[nsim1:], 0.025, axis=0)
 high=np.quantile(g_mk_list[nsim1:], 0.975, axis=0)
 med=np.quantile(g_mk_list[nsim1:], 0.5, axis=0)
@@ -269,5 +191,5 @@ integral_truth=50*c
 integral_mean=np.mean(g_mk_list3[nsim1:])
 integral_sd=np.sqrt(np.cov(g_mk_list3[nsim1:]))
 
-np.savez('/scratch/groups/juliapr/output_Bingjing/simulation/mymethod_BM1_5_4/ESSsyn2_BM1_'+sys.argv[1]+'.npz', aaa=g_mk_list3,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,b=x,e=intensity,f=coverage1,ff=coverage2,i=noise_var,j=l2_dist1,jj=l2_dist2,m=integral_truth,n=integral_mean,o=integral_sd,p=timerun,q=width1,r=width2,s=theta_list)
+np.savez('/output/simulation/mymethod_BM1_5_4/ESSsyn2_BM1_'+sys.argv[1]+'.npz', aaa=g_mk_list3,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,b=x,e=intensity,f=coverage1,ff=coverage2,i=noise_var,j=l2_dist1,jj=l2_dist2,m=integral_truth,n=integral_mean,o=integral_sd,p=timerun,q=width1,r=width2,s=theta_list)
 
