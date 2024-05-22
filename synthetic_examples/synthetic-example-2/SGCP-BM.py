@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[100]:
-
-
 from scipy.stats import expon
 from scipy.stats import uniform
 from scipy.stats import norm
@@ -19,10 +16,7 @@ import pyreadr
 import time
 import sys
 
-# In[103]:
-
-
-def expo_quad_kernel(xn,xm): # 1,0.1
+def expo_quad_kernel(xn,xm): 
     return min(xn,xm)
 
 def sigmoid(x): #"Numerically-stable sigmoid function."
@@ -52,33 +46,21 @@ def GP_regression(xi,yi,tau,noise_var,rang,num_points):
     cov_K_noise=cov_K+np.eye(N+M)*noise_var
     cov_K_noise_inv=np.linalg.inv(cov_K_noise)
     
-
     ones_vec=np.ones(N+M)
     ones_vec=ones_vec.reshape(N+M,1)
     cov_K_mod_inv=cov_K_noise_inv-cov_K_noise_inv@ones_vec@ones_vec.transpose()@cov_K_noise_inv/(ones_vec.transpose()@cov_K_noise_inv@ones_vec)
-
-    #=cov_K_mod_inv
-    #cov_K_mod_inv_add[0,0]=cov_K_mod_inv_add[0,0]+1e-7
-
     cov_K_mod_inv=cov_K_mod_inv+np.eye(N+M)*noise_var
-
     cov_K_mod=np.linalg.inv(cov_K_mod_inv)
-    
     k_matrix=cov_K_mod[0:M,M:(N+M)]
     k_C=np.dot(k_matrix,np.linalg.inv(cov_K_mod[M:(N+M),M:(N+M)]))
     mean=np.dot(k_C,yi)
     k_matrix_pre=cov_K_mod[0:M,0:M]
     posterior_cov=k_matrix_pre/tau-np.dot(k_C,k_matrix.T)/tau+np.eye(M)*noise_var
-    
     min_eig=np.min(np.real(np.linalg.eigvals(posterior_cov))) # numerical float truncation error refine
     while(min_eig<0):
         posterior_cov += -10*min_eig*np.eye(posterior_cov.shape[0])
         min_eig=np.min(np.real(np.linalg.eigvals(posterior_cov)))
     return x1,mean, posterior_cov
-
-    
-    
-    
 
 
 def GP_regression_one_pred(xi,yi,tau,noise_var,x_pred):
@@ -93,24 +75,13 @@ def GP_regression_one_pred(xi,yi,tau,noise_var,x_pred):
 
     cov_K_noise=cov_K+np.eye(N+1)*noise_var
     cov_K_noise_inv=np.linalg.inv(cov_K_noise)
-    
-
     ones_vec=np.ones(N+1)
     ones_vec=ones_vec.reshape(N+1,1)
     cov_K_mod_inv=cov_K_noise_inv-cov_K_noise_inv@ones_vec@ones_vec.transpose()@cov_K_noise_inv/(ones_vec.transpose()@cov_K_noise_inv@ones_vec)
-
-    #=cov_K_mod_inv
-    #cov_K_mod_inv_add[0,0]=cov_K_mod_inv_add[0,0]+1e-7
-
     cov_K_mod_inv=cov_K_mod_inv+np.eye(N+1)*noise_var
-
     cov_K_mod=np.linalg.inv(cov_K_mod_inv)
     cov_K_mod= cov_K_mod/tau
-    # prediction point
-    
     k_vec=cov_K_mod[0,1:(N+1)]
-    # prediction point
-    
     k_C=np.dot(k_vec,np.linalg.inv(cov_K_mod[1:(N+1),1:(N+1)]))
     mean=np.dot(k_C,yi)
     var=cov_K_mod[0,0]-np.dot(k_C,k_vec)
@@ -120,28 +91,14 @@ def GP_regression_one_pred(xi,yi,tau,noise_var,x_pred):
     return mean,std_dev
 
 
-
-
-
-#data = pyreadr.read_r('/scratch/groups/juliapr/output_Bingjing/data2/data_'+str(jjj)+'.rda')
-#points_inhomo = list(np.array(data["dataa"]).squeeze())
-
-data = pyreadr.read_r('/scratch/groups/juliapr/output_Bingjing/data2/data_'+sys.argv[1]+'.rda')
+data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')
 points_inhomo = list(np.array(data["dataa"]).squeeze())
-
-
 T=5
-
 noise_var=1e-3
 c=math.ceil(int(sys.argv[1])/100)-3
 measure_sup=21*c
 def inten2(t):
     return 10+t-t
-
-
-
-
-
 
 def sampling_M(M,s_m,g_mk,measure_sup,T,tau,noise_var):
     temp=uniform.rvs(0,1)
@@ -189,32 +146,15 @@ def sampling_s_m(M,s_m,g_mk,measure_sup,T,tau,noise_var):
             assert len(g_mk)==M+K
     return M, s_m, g_mk
 
-
-
-
 M=20    ## initial
 K=len(points_inhomo)
 s_m=np.linspace(1,T-1,M)
 g_mk=np.zeros((M+K))## 0--(K-1) observe K--last unobserve
 
-
-
-
-
-# In[104]:
-
-
 def chol_sample(mean, cov):
     return mean + np.linalg.cholesky(cov) @ np.random.standard_normal(mean.size)
 
-
-def log_lik_adam(f,ns):#,cov_inv):
-    #ns is len(points_inhomo)
-    #f[0:ns] is observations
-    #f[ns:] is thinned
-    #print(-0.5*f@cov_inv@f.transpose()-np.sum(np.log(1+np.exp(-f[0][0:ns])))-np.sum(np.log(1+np.exp(f[0][ns:]))))
-    #print(-0.5*f@cov_inv@f.transpose()-np.sum(np.log(1+np.exp(-f[:,0:ns])))-np.sum(np.log(1+np.exp(f[:,ns:]))))
-    #comp1=-0.5*f@cov_inv@f.transpose()
+def log_lik_adam(f,ns):
     return -np.sum(np.log(1+np.exp(-f[:,0:ns])))-np.sum(np.log(1+np.exp(f[:,ns:])))
     
 def elliptical_slice_adam(initial_theta,prior,lnpdf,pdf_params=(),
@@ -286,26 +226,17 @@ def elliptical_slice_adam(initial_theta,prior,lnpdf,pdf_params=(),
         phi = np.random.uniform()*(phi_max - phi_min) + phi_min
     return (xx_prop,cur_lnpdf)
 
-# In[105]:
-
 nsim1=10000
 nsim2=10000
-
 tau=np.exp(4)
 alpha=0.1
 beta=0.1
-#rem=1
-start_time1=time.time()
 
+start_time1=time.time()
 for k in range(nsim1):
-    #print(k)
-    
     M,s_m,g_mk=sampling_M(M,s_m,g_mk.squeeze(),measure_sup,T,tau,noise_var)
     M,s_m,g_mk=sampling_s_m(M,s_m,g_mk.squeeze(),measure_sup,T,tau,noise_var) # sampling s_m
-    #M,s_m,g_mk=sampling_g_mk(M,s_m,g_mk,measure_sup,T,theta0,theta1,noise_var) # sampling g_mk
     loc=np.array(points_inhomo+list(s_m))
-   
-
     cov_K=np.zeros((K+M,K+M))
     for i in range(K+M):
         for j in range(i,K+M):
@@ -316,28 +247,15 @@ for k in range(nsim1):
     ones_vec=np.ones(K+M)
     ones_vec=ones_vec.reshape(K+M,1)
     cov_K_mod_inv=cov_K_inv-cov_K_inv@ones_vec@ones_vec.transpose()@cov_K_inv/(ones_vec.transpose()@cov_K_inv@ones_vec)
-
-    #=cov_K_mod_inv
-    #cov_K_mod_inv_add[0,0]=cov_K_mod_inv_add[0,0]+1e-7
-
     cov_K_mod_inv_add=cov_K_mod_inv+np.eye(K+M)*noise_var
-
     cov_K_mod=np.linalg.inv(cov_K_mod_inv_add)
-
-   # cov_K_mod_chol=np.linalg.cholesky(cov_K_mod) 
     prior=chol_sample(mean=np.zeros(K+M), cov=cov_K_mod/tau)#nu
     g_mk,curloglike=elliptical_slice_adam(g_mk.reshape(1,-1),prior,log_lik_adam,pdf_params=[K],cur_lnpdf=None,angle_range=None)
-    
     alpha_pos=alpha+(M+K)/2
     beta_pos=beta+1/2*g_mk[0]@cov_K_mod_inv_add@g_mk[0]
     tau=np.random.gamma(alpha_pos, 1/beta_pos,1)[0]
-        #print(beta_pos)
-        #print(tau)
-    
     
 timerun1=time.time()-start_time1
-
-# In[106]:
 
 M_list=[] 
 s_m_list=[]
@@ -348,38 +266,22 @@ tau_list=[]
 Ngrid=100
 start_time2=time.time()
 for k in range(nsim2):
-    #print(k)
-    
     M,s_m,g_mk=sampling_M(M,s_m,g_mk.squeeze(),measure_sup,T,tau,noise_var)
     M,s_m,g_mk=sampling_s_m(M,s_m,g_mk.squeeze(),measure_sup,T,tau,noise_var) # sampling s_m
-    #M,s_m,g_mk=sampling_g_mk(M,s_m,g_mk,measure_sup,T,theta0,theta1,noise_var) # sampling g_mk
     loc=np.array(points_inhomo+list(s_m))
-   
-
     cov_K=np.zeros((K+M,K+M))
     for i in range(K+M):
         for j in range(i,K+M):
             cov_K[i][j]=expo_quad_kernel(loc[i],loc[j])
             cov_K[j][i]=cov_K[i][j]
     cov_K_inv=np.linalg.inv(cov_K+np.eye(K+M)*noise_var)
-
     ones_vec=np.ones(K+M)
     ones_vec=ones_vec.reshape(K+M,1)
     cov_K_mod_inv=cov_K_inv-cov_K_inv@ones_vec@ones_vec.transpose()@cov_K_inv/(ones_vec.transpose()@cov_K_inv@ones_vec)
-
-    #=cov_K_mod_inv
-    #cov_K_mod_inv_add[0,0]=cov_K_mod_inv_add[0,0]+1e-7
-
     cov_K_mod_inv_add=cov_K_mod_inv+np.eye(K+M)*noise_var
-
     cov_K_mod=np.linalg.inv(cov_K_mod_inv_add)
-
-   # cov_K_mod_chol=np.linalg.cholesky(cov_K_mod) 
     prior=chol_sample(mean=np.zeros(K+M), cov=cov_K_mod/tau)#nu
-    
     g_mk,curloglike=elliptical_slice_adam(g_mk.reshape(1,-1),prior,log_lik_adam,pdf_params=[K],cur_lnpdf=None,angle_range=None)    
-    
-    #M,s_m,g_mk=sampling_g_mk(M,s_m,g_mk,measure_sup,T,theta0,theta1,noise_var) # sampling g_mk
     xxx,mean,cov=GP_regression(np.array(points_inhomo+list(s_m)),g_mk.squeeze(),tau,noise_var,T,Ngrid)
     line=multivariate_normal.rvs(mean,cov)
     M_list.append(M)
@@ -415,18 +317,13 @@ coverage2=np.sum((truth>=low.squeeze()) * (truth<=high.squeeze()))/Ngrid
 width2=sum(high-low)/Ngrid
 
 
-
-
-np.savez('/scratch/groups/juliapr/output_Bingjing/simulation/adam1_1/syn2_BM_'+sys.argv[1]+'.npz', aaa=M_list,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,
+np.savez('/output/simulation/adam1_1/syn2_BM_'+sys.argv[1]+'.npz', aaa=M_list,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,
     e=tau_list,g=measure_sup,h=noise_var,i=coverage1,j=coverage2,k=l2_dist1,l=l2_dist2,m=width1,n=width2,o=timerun1,p=timerun2)
 
 
 import pickle
-with open("/scratch/groups/juliapr/output_Bingjing/simulation/adam1_1/syn2BM1_"+sys.argv[1]+".bin", "wb") as output:
+with open("/output/simulation/adam1_1/syn2BM1_"+sys.argv[1]+".bin", "wb") as output:
     pickle.dump(g_mk_list, output)
 
-#with open("/scratch/groups/juliapr/output_Bingjing/nut/plot/AdamMH.bin", "rb") as data:
-#    g_mk_list = pickle.load(data)
-
-with open("/scratch/groups/juliapr/output_Bingjing/simulation/adam1_1/syn2BM2_"+sys.argv[1]+".bin", "wb") as output:
+with open("/output/simulation/adam1_1/syn2BM2_"+sys.argv[1]+".bin", "wb") as output:
     pickle.dump(s_m_list, output)
