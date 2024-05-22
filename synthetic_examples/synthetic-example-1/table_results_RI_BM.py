@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # coding: utf-8
-
 from scipy.stats import expon
 from scipy.stats import uniform
 from scipy.stats import norm
@@ -24,10 +23,6 @@ coverage1_2=np.zeros((300,1))
 timerun1=np.zeros((300,1))
 width1_1=np.zeros((300,1))
 width1_2=np.zeros((300,1))
-
-
-# In[3]:
-
 
 for jjj in range(300):
     print(jjj)
@@ -100,4 +95,3 @@ for k in ([0,100,200]):
            np.round(np.quantile(width1_2[k:(k+100)], 0.75, axis=0),2)[0],
            np.round(np.quantile(width1_2[k:(k+100)], 0.975, axis=0),2)[0]])     
           
-
