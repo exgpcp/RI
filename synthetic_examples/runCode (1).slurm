@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=priorestf1
+#SBATCH --job-name=MAPf1
 #SBATCH --array=1-300
 #SBATCH --time=7-00:00:00
 #SBATCH --mem=8G
