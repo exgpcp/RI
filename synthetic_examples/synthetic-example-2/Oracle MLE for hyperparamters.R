@@ -13,6 +13,11 @@ library(base)
 library(mvtnorm)
 library(truncnorm)
 
+nam <- paste0("data_",args[1])#args[1] range from 301 to 400
+points_inhomo=get(nam)
+N=length(points_inhomo)
+T2=5
+
 expo_quad_kernel<-function(theta00,theta11,xn,xm){ # 1,0.1
   return(theta00*exp(-theta11/2*sum((xn - xm)**2)))
 }
@@ -32,13 +37,6 @@ inten1<-function(x){
 inten2<-function(x){
   return(10+x-x)
 }
-
-
-T2=5
-#########################################################################################
-nam <- paste0("data_",args[1])#args[1] range from 301 to 400
-points_inhomo=get(nam)
-N=length(points_inhomo)
 
 groundest<-function(c,func,T,u1,u2,noise_var){
   fv=c*sapply(points_inhomo,func)  
