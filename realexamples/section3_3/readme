@@ -1,4 +1,4 @@
-The real example for redwoods data in section 3.3.
+The real example for redwoods data (Strauss,1975) in section 3.3.
 The redwoods dataset is obtained from Rpackage 'spatstat' via the following lines of Rcode.
 install.packages('spatstat')
 library(spatstat)
