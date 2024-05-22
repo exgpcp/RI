@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # coding: utf-8
-
 from scipy.stats import expon
 from scipy.stats import uniform
 from scipy.stats import norm
