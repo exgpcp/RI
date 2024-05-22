@@ -11,7 +11,6 @@ library(base)
 library(mvtnorm)
 library(truncnorm)
 
-
 inten1<-function(x){
   return(2*exp(-x/15)+exp(-((x-25)/10)**2))
 }
@@ -166,7 +165,6 @@ for (jjj in 1:300){
   l2_dist2_1[jjj]=l2dist_med
   width2_1[jjj]=width1
   
-  
   bins=100
   x1=seq(0,T,T/bins)[1:bins]
   intensity1=sapply(x1,inten2)*ccc
@@ -186,7 +184,6 @@ for (jjj in 1:300){
 }
 
 ####################################################################################
-
 save(coverage2_1,coverage2_2,l2_dist2_1,l2_dist2_2,time_2,width2_1,width2_2,
      coverage1_1,coverage1_2,l2_dist1_1,l2_dist1_2,time_1,width1_1,width1_2,
      file = "analysis.RData")
@@ -211,7 +208,6 @@ round(quantile(width1_2[100:200], probs =c(0.5,0.025,0.25,0.75,0.975) , na.rm = 
 round(mean(time_1[100:200]),2)
 round(sd(time_1[100:200]),2)
 
-
 round(quantile(l2_dist1_1[200:300], probs =c(0.5,0.025,0.25,0.75,0.975) , na.rm = FALSE),2)
 round(quantile(100*coverage1_1[200:300], probs =c(0.5,0.025,0.25,0.75,0.975) , na.rm = FALSE),0)
 round(quantile(width1_1[200:300], probs =c(0.5,0.025,0.25,0.75,0.975) , na.rm = FALSE),2)
@@ -220,8 +216,6 @@ round(quantile(100*coverage1_2[200:300], probs =c(0.5,0.025,0.25,0.75,0.975) , n
 round(quantile(width1_2[200:300], probs =c(0.5,0.025,0.25,0.75,0.975) , na.rm = FALSE),2)
 round(mean(time_1[200:300]),2)
 round(sd(time_1[200:300]),2)
-
-
 
 ###################synthetic example 2
 round(quantile(l2_dist2_1[1:100], probs =c(0.5,0.025,0.25,0.75,0.975) , na.rm = FALSE),2)
@@ -241,7 +235,6 @@ round(quantile(100*coverage2_2[100:200], probs =c(0.5,0.025,0.25,0.75,0.975) , n
 round(quantile(width2_2[100:200], probs =c(0.5,0.025,0.25,0.75,0.975) , na.rm = FALSE),2)
 round(mean(time_2[100:200]),2)
 round(sd(time_2[100:200]),2)
-
 
 round(quantile(l2_dist2_1[200:300], probs =c(0.5,0.025,0.25,0.75,0.975) , na.rm = FALSE),2)
 round(quantile(100*coverage2_1[200:300], probs =c(0.5,0.025,0.25,0.75,0.975) , na.rm = FALSE),0)
