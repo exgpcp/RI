@@ -1,15 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[2]:
-
-
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[2]:
-
-
 from scipy.stats import expon
 from scipy.stats import uniform
 from scipy.stats import norm
@@ -44,11 +32,9 @@ counts.append(((344 <= points_inhomo) & (points_inhomo < 351)).sum())
 counts.append(((351 <= points_inhomo) & (points_inhomo < 358)).sum())
 counts.append(((358 <= points_inhomo) & (points_inhomo < 365)).sum())
 
-
 T=365
 days=[0,281,288,295,302,309,316,323,330,337,344,351,358,365]
 recurrent=points_inhomo[points_inhomo<281]
-
 
 def expo_quad_kernel(xn,xm): # 1,0.1
     return min(xn,xm)
@@ -61,30 +47,21 @@ def expo_quad_kernel2(xn,t1,t2): # t1<t2
     elif (xn>=t2):
         return (t2**2-t1**2)/2
 
-
 def expo_quad_kernel3(t1,t2,t3,t4): # 1,0.1 #t1<t2, t3<t4
     if (t1==t3 and t2==t4 ):
         return t2**3/3+2*t1**3/3-t1**2*t2/2-t2*t1**2/2
     else:
         return (t4-t3)*(t2**2-t1**2)/2
         
-
 def chol_sample(mean, cov_chol):
-    #return mean + np.linalg.cholesky(cov) @ np.random.standard_normal(mean.size)
     return mean + cov_chol @ np.random.standard_normal(mean.size)
-
 
 def log_lik(f,ns):
     #ns is # of Ngrids
     if np.prod(f>0)==0:
         return float('-inf') 
     else:
-        #print(f[:,0:ns].shape)
-        #return np.sum(np.log(f[:,Ngrid:Ngrid+ns]))-f[:,Ngrid+ns]
-        #return -np.sum(f[:,Ngrid:Nfinal])+np.sum(  counts*np.log( f[:,Ngrid:Nfinal] ) )
         return np.sum(np.log(f[:,Ngrid:Ngrid+ns])) -np.sum(f[:,(Ngrid+ns):Nfinal])+np.sum(  counts*np.log( f[:,(Ngrid+ns+1):Nfinal] ) )
-
-    
 
 def elliptical_slice(initial_theta,prior,lnpdf,pdf_params=(),
                      cur_lnpdf=None,angle_range=None):
@@ -159,20 +136,13 @@ K=len(counts)
 N=len(recurrent)+1
 Ngrid=100
 x4=np.linspace(0,T,Ngrid+1)[1:Ngrid+1] 
-
 xxx=np.concatenate([x4, points_inhomo])
-
-
 Nfinal=Ngrid+K+N
 g_mk=3+np.zeros(Nfinal)
 g_mk[Ngrid+N-1]=3*281
 nsim1=10000
 nsim2=50000
-
-
 cov_K=np.zeros((Nfinal,Nfinal))
-
-
 theta=np.exp(4)
 rem=1
 alpha=.1
@@ -191,20 +161,14 @@ for i in range(Nfinal):
 
 noise_var=1e-7
 cov_K_inv=np.linalg.inv(cov_K+np.eye(Nfinal)*noise_var)
-
 ones_vec=np.ones(Nfinal)
 ones_vec[Ngrid+N-1]=281
 ones_vec[(Ngrid+N):Nfinal]=7
-
 ones_vec=ones_vec.reshape(Nfinal,1)
 cov_K_mod_inv=cov_K_inv-cov_K_inv@ones_vec@ones_vec.transpose()@cov_K_inv/(ones_vec.transpose()@cov_K_inv@ones_vec)
-
 cov_K_mod_inv_add=cov_K_mod_inv+np.eye(Nfinal)*noise_var
-
 cov_K_mod=np.linalg.inv(cov_K_mod_inv_add)
-
 cov_K_mod_chol=np.linalg.cholesky(cov_K_mod) 
-
 
 for ite in range(nsim1):
     cov_K_chol_final=cov_K_mod_chol/np.sqrt(theta)
@@ -213,13 +177,10 @@ for ite in range(nsim1):
     alpha_pos=alpha+Nfinal/2
     beta_pos=beta+1/2*g_mk[0]@cov_K_mod_inv@g_mk[0]
     theta=np.random.gamma(alpha_pos, 1/beta_pos,1)
-  
-    
+      
 g_mk_list2=[]
 g_mk_list3=[]
 theta_list=[]
-
-
 for ite in range(nsim2):
     cov_K_chol_final=cov_K_mod_chol/np.sqrt(theta)
     prior=chol_sample(mean=np.zeros(Nfinal), cov_chol=cov_K_chol_final)#nu
@@ -229,11 +190,7 @@ for ite in range(nsim2):
     alpha_pos=alpha+Nfinal/2
     beta_pos=beta+1/2*g_mk[0]@cov_K_mod_inv@g_mk[0]
     theta=np.random.gamma(alpha_pos, 1/beta_pos,1)
-    theta_list.append(theta)    #print(beta_pos)
-
-
-# In[1]:
-
+    theta_list.append(theta)   
 
 data=np.load('/output/graphs2/real2/BM.npz')
 g_mk_list3_rec=data['aaa']
