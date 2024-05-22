@@ -16,8 +16,9 @@ library(truncnorm)
 
 T1=50
 T2=5
-nam <- paste0("syndata/data_",args[1])#args[1] range from 1 to 300
-points_inhomo=get(nam)
+nam <- paste0("syndata/data_",args[1],".rda")#args[1] range from 1 to 300
+load(nam)
+points_inhomo=dataa
 noise_var=1e-5
 ccc=4
 N=length(points_inhomo)
