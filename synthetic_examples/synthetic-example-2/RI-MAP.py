@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # coding: utf-8
-
 from scipy.stats import expon
 from scipy.stats import uniform
 from scipy.stats import norm
@@ -18,11 +17,16 @@ import pyreadr
 import time
 import sys
 
-data = pyreadr.read_r('syndata/data_'+sys.argv[1]+'.rda')
+data = pyreadr.read_r('syndata/data_'+sys.argv[1]+'.rda') #args[1] range from 301 to 600
 points_inhomo = np.array(data["dataa"]).squeeze()
 hyperpara=(pyreadr.read_r('/MAP/func2_priorest'+sys.argv[1]+'.rda')["b"]).squeeze()
 theta0=hyperpara[0]
 theta1=hyperpara[1]
+T=5
+bin_num=1000
+x=np.linspace(T/bin_num/2,T-T/bin_num/2,bin_num)
+noise_var=1e-10
+c=math.ceil(int(sys.argv[1])/100)-3
 
 def expo_quad_kernel(theta0,theta1,xn,xm): # 1,0.1
     return theta0*np.exp(-theta1/2*np.sum((xn - xm)**2))
@@ -33,11 +37,6 @@ def expo_quad_kernel2(theta0,theta1,xn,T): # 1,0.1
 def expo_quad_kernel3(theta0,theta1,T): # 1,0.1
     return 2*theta0/theta1*(np.sqrt(np.pi*theta1/2)*T*math.erf(np.sqrt(theta1/2)*T)+ np.exp(-theta1/2*(T**2)) -1)
 
-T=5
-bin_num=1000
-x=np.linspace(T/bin_num/2,T-T/bin_num/2,bin_num)
-noise_var=1e-10
-c=math.ceil(int(sys.argv[1])/100)-3
 def inten2(t):
     return 10+t-t
 
@@ -151,7 +150,6 @@ while(min_eig<1e-10):
     noise_var=10*noise_var
     cov_K_noise += np.eye(Nfinal)*noise_var
     min_eig=np.min(np.real(np.linalg.eigvals(cov_K_noise)))
-
 cov_K_chol=np.linalg.cholesky(cov_K_noise)
 
 start_time1=time.time()
@@ -172,7 +170,6 @@ for ite in range(nsim2):
     g_mk_list3.append(g_mk[0][Ngrid+K])        
 timerun2=time.time()-start_time2
 
-
 #l_2 norm between mean posterior and true intensity on the 100 grid points
 pos_mean=np.average(g_mk_list2,axis=0)
 truth=c*(10+xxx-xxx)
@@ -188,4 +185,3 @@ integral_mean=np.mean(g_mk_list3)
 integral_sd=np.sqrt(np.cov(g_mk_list3))
 
 np.savez('/output/simulation/mymethodfinal3/ESSsyn2_priormle'+sys.argv[1]+'.npz', aaa=g_mk_list3,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,b=x,e=intensity,f=coverage,g=theta0,h=theta1,i=noise_var,j=l_2norm,m=integral_truth,n=integral_mean,o=integral_sd,p=timerun1,q=timerun2)
-
