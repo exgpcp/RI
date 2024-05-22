@@ -17,7 +17,7 @@ import pyreadr
 import time
 import sys
 
-data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')#args[1] range from 301 to 600
+data = pyreadr.read_r('syndata/data_'+sys.argv[1]+'.rda')#args[1] range from 301 to 600
 points_inhomo = np.array(data["dataa"]).squeeze()
 T=5
 bin_num=1000
