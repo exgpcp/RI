@@ -1,4 +1,3 @@
-
 library(parallel)
 library(DEoptim)
 library(pracma)
@@ -53,7 +52,6 @@ inhomo_simulation<-function(measure_sup,T,func,c){
 }
 
 set.seed(1234)
-
 #########first synthetic example: generate 300 datasets from orginal, double and triple of inten1
 measure_sup1=3 #supreme
 T1=50
