@@ -68,6 +68,6 @@ groundest<-function(c,func,T,u1,u2,noise_var){
   return(out$optim$bestmem)
 }
 
-cc=1
+cc=1 #cc=2 corresponds to the second 100 datasets in the second synthetic example
 a=groundest(cc,inten2,T2,1000,10,1e-5)
 save(a, file =paste0( "/groundest/func2_s1_groundest",args[1],".rda"))
