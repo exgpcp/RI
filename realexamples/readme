@@ -1,4 +1,4 @@
-include results of RI-MAP and RI-BM for real examples 3.2-3.4.
+The folder "realexamples" include codes of RI-MAP and RI-BM for real examples 3.2-3.4.
 Real examples 3.2 and 3.4 utilize the same earthquake data obtained from U.S. Geological Survey(2020).
 "earthquakedata_download.py" include python codes to download the earthquake data from the website of U.S. Geological Survey.
 The downloaded dataset is saved in "earthquake.zip".
