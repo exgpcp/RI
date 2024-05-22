@@ -1,15 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[5]:
-
-
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[2]:
-
-
 from scipy.stats import expon
 from scipy.stats import uniform
 from scipy.stats import norm
@@ -23,16 +11,12 @@ from scipy.stats import truncnorm
 import math
 from scipy.stats import mvn
 np.set_printoptions(suppress=True)
-
 import pyreadr
 import time
 import sys
 
-
 data = np.load('/earthquakes/earthquakes.npz')
 points_inhomo=list(data['a'])
-
-
 T=365
 
 def expo_quad_kernel(xn,xm): # 1,0.1
@@ -44,28 +28,15 @@ def expo_quad_kernel2(xn,T): # 1,0.1
 def expo_quad_kernel3(T): # 1,0.1
     return (T**3/3)
 
-
-
-# ## MCMC inference
-
-# In[7]:
-
 def chol_sample(mean, cov_chol):
-    #return mean + np.linalg.cholesky(cov) @ np.random.standard_normal(mean.size)
     return mean + cov_chol @ np.random.standard_normal(mean.size)
 
-
 def log_lik(f,ns):
-    #x=pdf_params[0]
-    #ns=pdf_params[1]
-    #pr=scipy.stats.norm.logpdf(x[:,1],mu_y+rho0*math.sqrt(sigmasq_y)/math.sqrt(sigmasq_x)*(x[:,0]-mu_x) ,math.sqrt(sigmasq_y*(1-rho0**2)))
-
     if np.prod(f>0)==0:
         return float('-inf') 
     else:
         #print(f[:,0:ns].shape)
         return np.sum(np.log(f[:,Ngrid:Ngrid+ns]))-f[:,Ngrid+ns]
-
 
 def elliptical_slice(initial_theta,prior,lnpdf,pdf_params=(),
                      cur_lnpdf=None,angle_range=None):
@@ -136,7 +107,6 @@ def elliptical_slice(initial_theta,prior,lnpdf,pdf_params=(),
         phi = np.random.uniform()*(phi_max - phi_min) + phi_min
     return (xx_prop,cur_lnpdf)
 
-
 K=len(points_inhomo)
 N=K+1
 Ngrid=100
@@ -145,7 +115,6 @@ g_mk=3+np.zeros((Ngrid+K+1))## 0--(Ngrid-1) Ngrid--(Ngrid+K-1) observe K--last u
 g_mk[Ngrid+K]=3*T
 Nfinal=Ngrid+N
 x4=np.concatenate([xxx, points_inhomo])
-
 cov_K=np.zeros((Nfinal,Nfinal))
 noise_var=1e-7
 theta=np.exp(4)
@@ -162,34 +131,21 @@ for i in range(Nfinal):
             cov_K[i][j]=expo_quad_kernel3(T)  
         if j!=i:
             cov_K[j][i]=cov_K[i][j]
-
-
-
 cov_K_inv=np.linalg.inv(cov_K+np.eye(Nfinal)*noise_var)
-
 ones_vec=np.ones(Nfinal)
 ones_vec[Nfinal-1]=T
 ones_vec=ones_vec.reshape(Nfinal,1)
 cov_K_mod_inv=cov_K_inv-cov_K_inv@ones_vec@ones_vec.transpose()@cov_K_inv/(ones_vec.transpose()@cov_K_inv@ones_vec)
-
-
 cov_K_mod_inv_add=cov_K_mod_inv+np.eye(Nfinal)*noise_var
-
 cov_K_mod=np.linalg.inv(cov_K_mod_inv_add)
-
 cov_K_mod_chol=np.linalg.cholesky(cov_K_mod) 
 
 nsim1=10000
 nsim2=50000
-#L_inv=np.linalg.cholesky(cov_K_inv_add)
-#cov_K_chol=np.linalg.inv(L_inv)
 for ite in range(nsim1):
-    if (ite%10000==0):
-        print(ite)#cov_K is the covariance matrix
     cov_K_chol_final=cov_K_mod_chol/np.sqrt(theta)
     prior=chol_sample(mean=np.zeros(Nfinal), cov_chol=cov_K_chol_final)#nu
     g_mk,curloglike=elliptical_slice(g_mk.reshape(1,-1),prior,log_lik,pdf_params=[K],cur_lnpdf=None,angle_range=None)
-   
     alpha_pos=alpha+Nfinal/2
     beta_pos=beta+1/2*g_mk[0]@cov_K_mod_inv@g_mk[0]
     theta=np.random.gamma(alpha_pos, 1/beta_pos,1)
@@ -198,11 +154,8 @@ g_mk_list=[]
 g_mk_list2=[]
 g_mk_list3=[]
 theta_list=[]
-#theta=0.01
 
 for ite in range(nsim2):
-    if (ite%10000==0):
-        print(ite)#cov_K is the covariance matrix
     cov_K_chol_final=cov_K_mod_chol/np.sqrt(theta)
     prior=chol_sample(mean=np.zeros(Nfinal), cov_chol=cov_K_chol_final)#nu
     g_mk,curloglike=elliptical_slice(g_mk.reshape(1,-1),prior,log_lik,pdf_params=[K],cur_lnpdf=None,angle_range=None)
@@ -213,15 +166,12 @@ for ite in range(nsim2):
     beta_pos=beta+1/2*g_mk[0]@cov_K_mod_inv@g_mk[0]
     theta=np.random.gamma(alpha_pos, 1/beta_pos,1)
     theta_list.append(theta)    #print(beta_pos)
-        #print(theta)
-
-
-
+  
 np.savez('/output/graphs/real2/BM.npz', aaa=g_mk_list3,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,i=noise_var,p=timerun,q=width1,r=width2,s=theta_list)
 
-#1e-7
-plt.figure(1)                # the first figure
-plt.subplot(111)             # the first subplot in the first figure
+
+plt.figure(1)                
+plt.subplot(111)          
 low=np.quantile(g_mk_list2, 0.025, axis=0)
 plt.plot(xxx,low,'--',lw=1,alpha=0.6,c='tab:grey',label='2.5%-50%-97.5% Quantiles')
 me=np.quantile(g_mk_list2, 0.5, axis=0)
@@ -236,7 +186,6 @@ plt.legend()
 plt.savefig("/output/graphs/real2/BM_median.pdf",bbox_inches='tight')
 plt.show()
 
-
 plt.figure()
 plt.hist(g_mk_list3,bins=20)
 plt.xlim(700,1200)
@@ -246,10 +195,6 @@ plt.show()
 
 plt.figure()
 plt.plot(np.array(g_mk_list2)[:,50])
-
 plt.title('latent GP at midpoint',y=-0.2)
 plt.savefig("/output/graphs/real2/BM_traceplot1.pdf",bbox_inches='tight')
 plt.show()
-
-
-
