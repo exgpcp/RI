@@ -17,11 +17,16 @@ import pyreadr
 import time
 import sys
 
-data = pyreadr.read_r('syndata/data_'+sys.argv[1]+'.rda')
+data = pyreadr.read_r('syndata/data_'+sys.argv[1]+'.rda') #args[1] range from 1 to 300
 points_inhomo = np.array(data["dataa"]).squeeze()
 hyperpara=(pyreadr.read_r('/MAP/func1_priorest'+sys.argv[1]+'.rda')["b"]).squeeze()
 theta0=hyperpara[0]
 theta1=hyperpara[1]
+T=50
+bin_num=1000
+x=np.linspace(T/bin_num/2,T-T/bin_num/2,bin_num)
+c=math.ceil(int(sys.argv[1])/100)
+intensity=c*(2*np.exp(-x/15)+np.exp(-((x-25)/10)**2))
 
 def expo_quad_kernel(theta0,theta1,xn,xm): # 1,0.1
     return theta0*np.exp(-theta1/2*np.sum((xn - xm)**2))
@@ -32,21 +37,13 @@ def expo_quad_kernel2(theta0,theta1,xn,T): # 1,0.1
 def expo_quad_kernel3(theta0,theta1,T): # 1,0.1
     return 2*theta0/theta1*(np.sqrt(np.pi*theta1/2)*T*math.erf(np.sqrt(theta1/2)*T)+ np.exp(-theta1/2*(T**2)) -1)
 
-T=50
-bin_num=1000
-x=np.linspace(T/bin_num/2,T-T/bin_num/2,bin_num)
-c=math.ceil(int(sys.argv[1])/100)
-intensity=c*(2*np.exp(-x/15)+np.exp(-((x-25)/10)**2))
-
 def chol_sample(mean, cov_chol):
-    #return mean + np.linalg.cholesky(cov) @ np.random.standard_normal(mean.size)
     return mean + cov_chol @ np.random.standard_normal(mean.size)
 
 def log_lik(f,ns):
     if np.prod(f>0)==0:
         return float('-inf') 
     else:
-        #print(f[:,0:ns].shape)
         return np.sum(np.log(f[:,Ngrid:Ngrid+ns]))-f[:,Ngrid+ns]
     
 def elliptical_slice(initial_theta,prior,lnpdf,pdf_params=(),
@@ -124,11 +121,11 @@ Ngrid=100
 xxx=np.linspace(0,T,Ngrid+1)[:Ngrid] 
 g_mk=3*c+np.zeros((Ngrid+K+1))##0--(Ngrid-1):function values at grids, Ngrid--(Ngrid+K-1):K observations, last:integral term.
 g_mk[Ngrid+K]=150*c
-T=50
 Nfinal=Ngrid+N
 x4=np.concatenate([xxx, points_inhomo])
 cov_K=np.zeros((Nfinal,Nfinal))
 noise_var=1e-13
+
 nsim1=10000
 nsim2=50000
 for i in range(Nfinal):
