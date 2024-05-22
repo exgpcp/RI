@@ -16,7 +16,7 @@ import sys
 import pickle
 
 T=50
-data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda') #args[1] range from 1 to 300
+data = pyreadr.read_r('syndata/data_'+sys.argv[1]+'.rda') #args[1] range from 1 to 300
 points_inhomo = list(np.array(data["dataa"]).squeeze())
 c=math.ceil(int(sys.argv[1])/100)
 measure_sup=3*c
