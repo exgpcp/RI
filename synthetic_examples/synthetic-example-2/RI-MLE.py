@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # coding: utf-8
-
 from scipy.stats import expon
 from scipy.stats import uniform
 from scipy.stats import norm
@@ -18,12 +17,16 @@ import pyreadr
 import time
 import sys
 
-
 data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')
 points_inhomo = np.array(data["dataa"]).squeeze()
 hyperpara=(pyreadr.read_r('MLE.rda')["groundhypest"]).squeeze()
 theta0=hyperpara[0][int(sys.argv[1])-1]
 theta1=hyperpara[1][int(sys.argv[1])-1]
+T=5
+bin_num=1000
+x=np.linspace(T/bin_num/2,T-T/bin_num/2,bin_num)
+noise_var=1e-10
+c=math.ceil(int(sys.argv[1])/100)-3
 
 def expo_quad_kernel(theta0,theta1,xn,xm): # 1,0.1
     return theta0*np.exp(-theta1/2*np.sum((xn - xm)**2))
@@ -34,11 +37,6 @@ def expo_quad_kernel2(theta0,theta1,xn,T): # 1,0.1
 def expo_quad_kernel3(theta0,theta1,T): # 1,0.1
     return 2*theta0/theta1*(np.sqrt(np.pi*theta1/2)*T*math.erf(np.sqrt(theta1/2)*T)+ np.exp(-theta1/2*(T**2)) -1)
 
-T=5
-bin_num=1000
-x=np.linspace(T/bin_num/2,T-T/bin_num/2,bin_num)
-noise_var=1e-10
-c=math.ceil(int(sys.argv[1])/100)-3
 def inten2(t):
     return 10+t-t
 
@@ -54,7 +52,6 @@ def log_lik(f,ns):
         #print(f[:,0:ns].shape)
         return np.sum(np.log(f[:,Ngrid:Ngrid+ns]))-f[:,Ngrid+ns]
     
-
 def elliptical_slice(initial_theta,prior,lnpdf,pdf_params=(),
                      cur_lnpdf=None,angle_range=None):
     """
@@ -172,10 +169,8 @@ for ite in range(nsim2):
     g_mk,curloglike=elliptical_slice(g_mk.reshape(1,-1),prior,log_lik,pdf_params=[K],cur_lnpdf=None,angle_range=None)
     g_mk_list.append(g_mk[0][Ngrid:Ngrid+K])
     g_mk_list2.append(g_mk[0][0:Ngrid])
-    g_mk_list3.append(g_mk[0][Ngrid+K])
-        
+    g_mk_list3.append(g_mk[0][Ngrid+K])       
 timerun2=time.time()-start_time2
-
 
 #l_2 norm between mean posterior and true intensity on the 100 grid points
 pos_mean=np.average(g_mk_list2,axis=0)
@@ -192,6 +187,4 @@ integral_truth=50*c
 integral_mean=np.mean(g_mk_list3)
 integral_sd=np.sqrt(np.cov(g_mk_list3))
 
-
 np.savez('/output/simulation/mymethodfinal3/ESSsyn2_truthmle'+sys.argv[1]+'.npz', aaa=g_mk_list3,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,b=x,e=intensity,f=coverage,g=theta0,h=theta1,i=noise_var,j=l_2norm,m=integral_truth,n=integral_mean,o=integral_sd,p=timerun1,q=timerun2)
-
