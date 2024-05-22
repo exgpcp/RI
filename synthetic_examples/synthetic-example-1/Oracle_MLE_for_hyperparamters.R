@@ -13,7 +13,7 @@ library(base)
 library(mvtnorm)
 library(truncnorm)
 
-nam <- paste0("data_",args[1])#args[1] range from 1 to 100
+nam <- paste0("syndata/data_",args[1])#args[1] range from 1 to 100
 points_inhomo=get(nam)
 N=length(points_inhomo)
 measure_sup1=3 #supreme
