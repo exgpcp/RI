@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # coding: utf-8
-
 from scipy.stats import expon
 from scipy.stats import uniform
 from scipy.stats import norm
@@ -15,8 +14,9 @@ import math
 import pyreadr
 import time
 import sys
+import pickle
 
-data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')
+data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')#args[1] range from 1 to 300
 points_inhomo = list(np.array(data["dataa"]).squeeze())
 hyperpara=(pyreadr.read_r('MLE.rda')["groundhypest"]).squeeze()
 theta0=hyperpara[0][int(sys.argv[1])-1]
@@ -292,7 +292,6 @@ inten_est2=measure_sup/(1+np.exp(-np.array(g_mk_list2)))
 low=np.quantile(inten_est2, 0.025, axis=0)
 med=np.quantile(inten_est2, 0.5, axis=0)
 high=np.quantile(inten_est2, 0.975, axis=0)
-
 truth=2*np.exp(-np.array(xxx)/15)+np.exp(-((np.array(xxx)-25)/10)**2)
 truth=c*truth
 l2_dist2=sum((np.array(med).squeeze()-truth)**2)
@@ -302,10 +301,8 @@ width2=sum(high-low)/Ngrid
 np.savez('/output/simulation/adam1_1/truthmle/syn1/syn1_truthmle_'+sys.argv[1]+'.npz', aaa=M_list,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,
     e=theta0,f=theta1,g=measure_sup,h=noise_var,i=coverage1,j=coverage2,k=l2_dist1,l=l2_dist2,m=width1,n=width2,o=timerun1,p=timerun2)
 
-import pickle
 with open("/output/simulation/adam1_1/truthmle/syn1/syn1_truthmle1_"+sys.argv[1]+".bin", "wb") as output:
     pickle.dump(g_mk_list, output)
 
 with open("/output/simulation/adam1_1/truthmle/syn1/syn1_truthmle2_"+sys.argv[1]+".bin", "wb") as output:
     pickle.dump(s_m_list, output)
-
