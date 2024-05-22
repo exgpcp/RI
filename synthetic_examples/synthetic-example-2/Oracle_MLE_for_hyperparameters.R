@@ -13,8 +13,6 @@ library(base)
 library(mvtnorm)
 library(truncnorm)
 
-#nam <- paste0("data_",args[1])#args[1] range from 301 to 400
-#points_inhomo=get(nam)
 nam <- paste0("syndata/data_",args[1],".rda")#args[1] range from 301 to 400
 load(nam)
 points_inhomo=dataa
