@@ -43,7 +43,6 @@ for jjj in range(300):
     integral_sd=data['o']
     timerun2=data['q']
 
-
     low=np.quantile(g_mk_list, 0.025, axis=0)
     high=np.quantile(g_mk_list, 0.975, axis=0)
     med=np.quantile(g_mk_list, 0.5, axis=0)
@@ -52,7 +51,6 @@ for jjj in range(300):
     l2_dist1_1[jjj]=sum((np.array(med).squeeze()-truth)**2)
     coverage1_1[jjj]=np.sum((truth>=low.squeeze()) * (truth<=high.squeeze()))/len(points_inhomo)
     width1_1[jjj]=sum(high-low)/len(points_inhomo)
-
 
     low=np.quantile(g_mk_list2, 0.025, axis=0)
     high=np.quantile(g_mk_list2, 0.975, axis=0)
@@ -64,7 +62,6 @@ for jjj in range(300):
     width1_2[jjj]=sum(high-low)/len(xxx)
     timerun1_2[jjj]=timerun2
     
-   
 for k in ([0,100,200]):
     print([np.round(np.quantile(l2_dist1_1[k:(k+100)], 0.5, axis=0),2)[0],
           np.round(np.quantile(l2_dist1_1[k:(k+100)], 0.025, axis=0),2)[0],
