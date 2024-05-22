@@ -16,6 +16,17 @@ import pyreadr
 import time
 import sys
 
+data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')
+points_inhomo = list(np.array(data["dataa"]).squeeze())
+
+hyperpara=(pyreadr.read_r('/MAP/func1_priorest'+sys.argv[1]+'.rda')["b"]).squeeze()
+theta0=hyperpara[0]
+theta1=hyperpara[1]
+c=math.ceil(int(sys.argv[1])/100)
+measure_sup=3*c
+noise_var=1e-4
+T=50
+
 def expo_quad_kernel(theta0,theta1,xn,xm): # 1,0.1
     return theta0*np.exp(-theta1/2*np.sum((xn - xm)**2))
 
@@ -94,21 +105,6 @@ def GP_regression_one_pred(xi,yi,theta0,theta1,noise_var,x_pred):
     
     return mean,std_dev
 
-
-
-
-
-
-data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')
-points_inhomo = list(np.array(data["dataa"]).squeeze())
-
-hyperpara=(pyreadr.read_r('/MAP/func1_priorest'+sys.argv[1]+'.rda')["b"]).squeeze()
-theta0=hyperpara[0]
-theta1=hyperpara[1]
-c=math.ceil(int(sys.argv[1])/100)
-measure_sup=3*c
-noise_var=1e-4
-T=50
 
 def sampling_M(M,s_m,g_mk,measure_sup,T,theta0,theta1,noise_var):
     temp=uniform.rvs(0,1)
