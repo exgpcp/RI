@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # coding: utf-8
-
 from scipy.stats import expon
 from scipy.stats import uniform
 from scipy.stats import norm
@@ -15,6 +14,14 @@ import math
 import pyreadr
 import time
 import sys
+import pickle
+
+data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')
+points_inhomo = list(np.array(data["dataa"]).squeeze())
+T=5
+noise_var=1e-3
+c=math.ceil(int(sys.argv[1])/100)-3
+measure_sup=21*c
 
 def expo_quad_kernel(xn,xm): 
     return min(xn,xm)
@@ -30,10 +37,9 @@ def sigmoid(x): #"Numerically-stable sigmoid function."
             result=np.append(result, z / (1 + z))
     return result
 
-
 def GP_regression(xi,yi,tau,noise_var,rang,num_points):
     N=len(xi)
-    x1=np.linspace(0,rang,num_points+1)[:num_points]     # prediction points, integer is to make it easy
+    x1=np.linspace(0,rang,num_points+1)[:num_points]     
     M=len(x1)
     loc=np.insert(xi, 0, x1)
     cov_K=np.zeros((N+M,N+M))
@@ -45,7 +51,6 @@ def GP_regression(xi,yi,tau,noise_var,rang,num_points):
     
     cov_K_noise=cov_K+np.eye(N+M)*noise_var
     cov_K_noise_inv=np.linalg.inv(cov_K_noise)
-    
     ones_vec=np.ones(N+M)
     ones_vec=ones_vec.reshape(N+M,1)
     cov_K_mod_inv=cov_K_noise_inv-cov_K_noise_inv@ones_vec@ones_vec.transpose()@cov_K_noise_inv/(ones_vec.transpose()@cov_K_noise_inv@ones_vec)
@@ -56,12 +61,11 @@ def GP_regression(xi,yi,tau,noise_var,rang,num_points):
     mean=np.dot(k_C,yi)
     k_matrix_pre=cov_K_mod[0:M,0:M]
     posterior_cov=k_matrix_pre/tau-np.dot(k_C,k_matrix.T)/tau+np.eye(M)*noise_var
-    min_eig=np.min(np.real(np.linalg.eigvals(posterior_cov))) # numerical float truncation error refine
+    min_eig=np.min(np.real(np.linalg.eigvals(posterior_cov))) 
     while(min_eig<0):
         posterior_cov += -10*min_eig*np.eye(posterior_cov.shape[0])
         min_eig=np.min(np.real(np.linalg.eigvals(posterior_cov)))
     return x1,mean, posterior_cov
-
 
 def GP_regression_one_pred(xi,yi,tau,noise_var,x_pred):
     N=len(xi)
@@ -90,13 +94,6 @@ def GP_regression_one_pred(xi,yi,tau,noise_var,x_pred):
     
     return mean,std_dev
 
-
-data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')
-points_inhomo = list(np.array(data["dataa"]).squeeze())
-T=5
-noise_var=1e-3
-c=math.ceil(int(sys.argv[1])/100)-3
-measure_sup=21*c
 def inten2(t):
     return 10+t-t
 
@@ -146,7 +143,7 @@ def sampling_s_m(M,s_m,g_mk,measure_sup,T,tau,noise_var):
             assert len(g_mk)==M+K
     return M, s_m, g_mk
 
-M=20    ## initial
+M=20   
 K=len(points_inhomo)
 s_m=np.linspace(1,T-1,M)
 g_mk=np.zeros((M+K))## 0--(K-1) observe K--last unobserve
@@ -243,7 +240,6 @@ for k in range(nsim1):
             cov_K[i][j]=expo_quad_kernel(loc[i],loc[j])
             cov_K[j][i]=cov_K[i][j]
     cov_K_inv=np.linalg.inv(cov_K+np.eye(K+M)*noise_var)
-
     ones_vec=np.ones(K+M)
     ones_vec=ones_vec.reshape(K+M,1)
     cov_K_mod_inv=cov_K_inv-cov_K_inv@ones_vec@ones_vec.transpose()@cov_K_inv/(ones_vec.transpose()@cov_K_inv@ones_vec)
@@ -253,8 +249,7 @@ for k in range(nsim1):
     g_mk,curloglike=elliptical_slice_adam(g_mk.reshape(1,-1),prior,log_lik_adam,pdf_params=[K],cur_lnpdf=None,angle_range=None)
     alpha_pos=alpha+(M+K)/2
     beta_pos=beta+1/2*g_mk[0]@cov_K_mod_inv_add@g_mk[0]
-    tau=np.random.gamma(alpha_pos, 1/beta_pos,1)[0]
-    
+    tau=np.random.gamma(alpha_pos, 1/beta_pos,1)[0]    
 timerun1=time.time()-start_time1
 
 M_list=[] 
@@ -309,19 +304,15 @@ inten_est2=measure_sup/(1+np.exp(-np.array(g_mk_list2)))
 low=np.quantile(inten_est2, 0.025, axis=0)
 med=np.quantile(inten_est2, 0.5, axis=0)
 high=np.quantile(inten_est2, 0.975, axis=0)
-
 truth=10+xxx-xxx
 truth=c*truth
 l2_dist2=sum((np.array(med).squeeze()-truth)**2)
 coverage2=np.sum((truth>=low.squeeze()) * (truth<=high.squeeze()))/Ngrid
 width2=sum(high-low)/Ngrid
 
-
 np.savez('/output/simulation/adam1_1/BM/syn2/syn2_BM_'+sys.argv[1]+'.npz', aaa=M_list,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,
     e=tau_list,g=measure_sup,h=noise_var,i=coverage1,j=coverage2,k=l2_dist1,l=l2_dist2,m=width1,n=width2,o=timerun1,p=timerun2)
 
-
-import pickle
 with open("/output/simulation/adam1_1/BM/syn2/syn2BM1_"+sys.argv[1]+".bin", "wb") as output:
     pickle.dump(g_mk_list, output)
 
