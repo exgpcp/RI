@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
-
-
 from scipy.stats import expon
 from scipy.stats import uniform
 from scipy.stats import norm
@@ -17,35 +14,16 @@ from scipy.stats import truncnorm
 import math
 from scipy.stats import mvn
 np.set_printoptions(suppress=True)
-
 import pyreadr
 import time
 import sys
-#mvn.mvnun(np.ones(D)*float("-Inf"),np.zeros(D),np.zeros(D),cov_K_noise)[0]
 
 
-# In[ ]:
-
-
-#data = pyreadr.read_r('/scratch/groups/juliapr/output_Bingjing/data2/data_'+sys.argv[1]+'.rda')
-#points_inhomo = np.array(data["dataa"]).squeeze()
-data = pyreadr.read_r('/home/groups/juliapr/Bingjing/code/currentcode/syndata/data_'+sys.argv[1]+'.rda')
+data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')
 points_inhomo = np.array(data["dataa"]).squeeze()
-#hyperpara=(pyreadr.read_r('/scratch/groups/juliapr/output_Bingjing/priorestnew3/func2_priorest'+sys.argv[1]+'.rda')["b"]).squeeze()
-
-#theta0=hyperpara[0]
-#theta1=hyperpara[1]
-
-
-hyperpara=(pyreadr.read_r('/home/groups/juliapr/Bingjing/code/currentcode/hyperparameters/groundhypest.rda')["groundhypest"]).squeeze()
-
+hyperpara=(pyreadr.read_r('MLE.rda')["groundhypest"]).squeeze()
 theta0=hyperpara[0][int(sys.argv[1])-1]
 theta1=hyperpara[1][int(sys.argv[1])-1]
-
-
-
-# In[5]:
-
 
 def expo_quad_kernel(theta0,theta1,xn,xm): # 1,0.1
     return theta0*np.exp(-theta1/2*np.sum((xn - xm)**2))
@@ -53,17 +31,8 @@ def expo_quad_kernel(theta0,theta1,xn,xm): # 1,0.1
 def expo_quad_kernel2(theta0,theta1,xn,T): # 1,0.1
     return np.sqrt(np.pi/2/theta1)*theta0*(math.erf(np.sqrt(theta1/2)*(T-xn))+math.erf(np.sqrt(theta1/2)*xn))
 
-
-
 def expo_quad_kernel3(theta0,theta1,T): # 1,0.1
     return 2*theta0/theta1*(np.sqrt(np.pi*theta1/2)*T*math.erf(np.sqrt(theta1/2)*T)+ np.exp(-theta1/2*(T**2)) -1)
-
-
-
-# ## simulation
-
-# In[6]:
-
 
 T=5
 bin_num=1000
@@ -74,13 +43,6 @@ def inten2(t):
     return 10+t-t
 
 intensity=inten2(x)*c
-
-
-
-
-
-
-# ## MCMC inference
 
 def chol_sample(mean, cov_chol):
     return mean + cov_chol @ np.random.standard_normal(mean.size)
@@ -166,21 +128,14 @@ def elliptical_slice(initial_theta,prior,lnpdf,pdf_params=(),
         phi = np.random.uniform()*(phi_max - phi_min) + phi_min
     return (xx_prop,cur_lnpdf)
 
-
-# In[17]:
-
-
 K=len(points_inhomo)
 N=K+1
 Ngrid=100
 xxx=np.linspace(0,T,Ngrid+1)[:Ngrid] 
 g_mk=7*c+np.zeros((Ngrid+K+1))## 0--(Ngrid-1) Ngrid--(Ngrid+K-1) observe K--last unobserve +integral term
-
 g_mk[Ngrid+K]=35*c
 Nfinal=Ngrid+N
-
 x4=np.concatenate([xxx, points_inhomo])
-
 cov_K=np.zeros((Nfinal,Nfinal))
 
 nsim1=10000
@@ -203,10 +158,7 @@ while(min_eig<1e-10):
     cov_K_noise += np.eye(Nfinal)*noise_var
     min_eig=np.min(np.real(np.linalg.eigvals(cov_K_noise)))
 
-
 cov_K_chol=np.linalg.cholesky(cov_K_noise)
-
-
 start_time1=time.time()
 for ite in range(nsim1):
     #print(ite)#cov_K is the covariance matrix
@@ -214,12 +166,9 @@ for ite in range(nsim1):
     g_mk,curloglike=elliptical_slice(g_mk.reshape(1,-1),prior,log_lik,pdf_params=[K],cur_lnpdf=None,angle_range=None)
 timerun1=time.time()-start_time1 
         
-
 g_mk_list=[]
 g_mk_list2=[]
 g_mk_list3=[]
-# constraints
-# create truncated normal and sample from it
 start_time2=time.time()
 for ite in range(nsim2):
     #print(ite)#cov_K is the covariance matrix
@@ -232,21 +181,6 @@ for ite in range(nsim2):
 timerun2=time.time()-start_time2
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-# In[ ]:
-
-
 #l_2 norm between mean posterior and true intensity on the 100 grid points
 
 pos_mean=np.average(g_mk_list2,axis=0)
@@ -257,13 +191,12 @@ low=np.quantile(g_mk_list2, 0.025, axis=0)
 me=np.quantile(g_mk_list2, 0.5, axis=0)
 high=np.quantile(g_mk_list2, 0.975, axis=0)
 coverage=np.sum((truth>=low.squeeze()) * (truth<=high.squeeze()))/100
-#about the integral values
 
+#about the integral values
 integral_truth=50*c
 integral_mean=np.mean(g_mk_list3)
 integral_sd=np.sqrt(np.cov(g_mk_list3))
 
 
-
-np.savez('/scratch/groups/juliapr/output_Bingjing/simulation/testsyn2mle/ESSsyn2_truthmle'+sys.argv[1]+'.npz', aaa=g_mk_list3,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,b=x,e=intensity,f=coverage,g=theta0,h=theta1,i=noise_var,j=l_2norm,m=integral_truth,n=integral_mean,o=integral_sd,p=timerun1,q=timerun2)
+np.savez('/output/simulation/syn2mle/ESSsyn2_truthmle'+sys.argv[1]+'.npz', aaa=g_mk_list3,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,b=x,e=intensity,f=coverage,g=theta0,h=theta1,i=noise_var,j=l_2norm,m=integral_truth,n=integral_mean,o=integral_sd,p=timerun1,q=timerun2)
 
