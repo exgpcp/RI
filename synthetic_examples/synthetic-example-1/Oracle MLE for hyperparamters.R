@@ -1,4 +1,4 @@
-#################################routine MLE estimate hyperparameters
+#################################Oracle MLE estimate hyperparameters
 ###################for the first 100 datasets in the first synthetic example
 
 #!/usr/bin/Rscript
@@ -35,31 +35,9 @@ inten2<-function(x){
   return(10+x-x)
 }
 
-inten3<-function(x){
-  if(x<=25){return(2+1/25*x)}
-  if(x<=50){return(5-2/25*x)}
-  if(x<=75){return(3/50*x-2)}
-  return(1/50*x+1)
-  
-}
 
 measure_sup1=3 #supreme
 T1=50
-#bin_num1=1000
-#x1=seq(0,T1,length.out=bin_num1)
-#intensity1=inten1(x1)
-
-measure_sup2=11 #supreme
-T2=5
-#bin_num2=1000
-#x2=seq(0,T2,length.out=bin_num2)
-#intensity2=inten2(x2)
-
-measure_sup3=3.1 #supreme
-T3=100
-#bin_num3=1000
-#x3=seq(0,T3,length.out=bin_num3)
-#intensity3=sapply(x3,inten3)
 
 
 #########################################################################################
@@ -94,14 +72,9 @@ groundest<-function(c,func,T,u1,u2,noise_var){
   return(out$optim$bestmem)
 }
 
-cc=1
+cc=1 #cc=2 corresponds to the second 100 datasets in the first synthetic example
 a=groundest(cc,inten1,T1,20,1,1e-5)
 save(a, file =paste0( "/groundest/func1_s1_groundest",args[1],".rda"))
-
-
-
-
-
 
 
 
