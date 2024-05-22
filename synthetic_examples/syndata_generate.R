@@ -31,13 +31,6 @@ inten2<-function(x){
   return(10+x-x)
 }
 
-inten3<-function(x){
-  if(x<=25){return(2+1/25*x)}
-  if(x<=50){return(5-2/25*x)}
-  if(x<=75){return(3/50*x-2)}
-  return(1/50*x+1)
-}
-
 #########################generate events from the ground truth intensity function
 inhomo_simulation<-function(measure_sup,T,func,c){
   t=0
@@ -89,22 +82,6 @@ for(c in 1:3){
     mmm=mmm+1
     nam <- paste("data_", mmm, sep = "")
     data=inhomo_simulation(measure_sup2,T2, inten2,c)
-    save(data, file=paste(nam,'.rda',sep=''))
-  }
-}
-
-#########third synthetic example: generate 300 datasets from from orginal, double and triple of inten3
-measure_sup3=3.1 #supreme
-T3=100
-bin_num3=1000
-x3=seq(0,T3,length.out=bin_num3)
-intensity3=sapply(x3,inten3)
-
-for(c in 1:3){
-  for(k in 1:100){
-    mmm=mmm+1
-    nam <- paste("data_", mmm, sep = "")
-    data=inhomo_simulation(measure_sup3,T3, inten3,c)
     save(data, file=paste(nam,'.rda',sep=''))
   }
 }
