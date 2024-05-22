@@ -8,7 +8,7 @@ sbatch Rcode.slurm
 
 sbatch Pythoncode.slurm
 
-all "table_results_*.py" could be run seperately to obtain results in table 1 and 2.
+all "table_results_*.py" could be run seperately to obtain results in table 1 and 2 after the above two sbatch codes.
 
 
 ##########Real examples:
