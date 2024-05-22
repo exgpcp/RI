@@ -10,3 +10,5 @@ We apply the above codes to each synthetic dataset included in syndata.zip via .
 "synthetic_examples/Pythoncode.slurm"
 
 table_results_*.py include python codes for results presentation in tables of our paper. 
+
+For most codes, users could reapply them to new datasets by replacing the dataset required at the beginning of codes.
