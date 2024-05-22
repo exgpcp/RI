@@ -16,11 +16,16 @@ import pyreadr
 import time
 import sys
 
-data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')
+data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda') #args[1] range from 1 to 300
 points_inhomo = np.array(data["dataa"]).squeeze()
 hyperpara=(pyreadr.read_r('MLE.rda')["groundhypest"]).squeeze()
 theta0=hyperpara[0][int(sys.argv[1])-1]
 theta1=hyperpara[1][int(sys.argv[1])-1]
+T=50
+bin_num=1000
+x=np.linspace(T/bin_num/2,T-T/bin_num/2,bin_num)
+c=math.ceil(int(sys.argv[1])/100)
+intensity=c*(2*np.exp(-x/15)+np.exp(-((x-25)/10)**2))
 
 def expo_quad_kernel(theta0,theta1,xn,xm): # 1,0.1
     return theta0*np.exp(-theta1/2*np.sum((xn - xm)**2))
@@ -31,24 +36,13 @@ def expo_quad_kernel2(theta0,theta1,xn,T): # 1,0.1
 def expo_quad_kernel3(theta0,theta1,T): # 1,0.1
     return 2*theta0/theta1*(np.sqrt(np.pi*theta1/2)*T*math.erf(np.sqrt(theta1/2)*T)+ np.exp(-theta1/2*(T**2)) -1)
 
-T=50
-bin_num=1000
-x=np.linspace(T/bin_num/2,T-T/bin_num/2,bin_num)
-c=math.ceil(int(sys.argv[1])/100)
-intensity=c*(2*np.exp(-x/15)+np.exp(-((x-25)/10)**2))
-
-#def chol_sample(mean, cov):
- #   return mean + np.linalg.cholesky(cov) @ np.random.standard_normal(mean.size)
-
 def chol_sample(mean, cov_chol):
-    #return mean + np.linalg.cholesky(cov) @ np.random.standard_normal(mean.size)
     return mean + cov_chol @ np.random.standard_normal(mean.size)
 
 def log_lik(f,ns):
     if np.prod(f>0)==0:
         return float('-inf') 
     else:
-        #print(f[:,0:ns].shape)
         return np.sum(np.log(f[:,Ngrid:Ngrid+ns]))-f[:,Ngrid+ns]
     
 def elliptical_slice(initial_theta,prior,lnpdf,pdf_params=(),
@@ -126,7 +120,6 @@ Ngrid=100
 xxx=np.linspace(0,T,Ngrid+1)[:Ngrid] 
 g_mk=3*c+np.zeros((Ngrid+K+1))## 0--(Ngrid-1):function values at grids, Ngrid--(Ngrid+K-1):K observations, last:integral term.
 g_mk[Ngrid+K]=150*c
-T=50
 Nfinal=Ngrid+N
 x4=np.concatenate([xxx, points_inhomo])
 cov_K=np.zeros((Nfinal,Nfinal))
@@ -148,8 +141,8 @@ min_eig=np.min(np.real(np.linalg.eigvals(cov_K_noise)))
 while(min_eig<1e-10):
     cov_K_noise += np.eye(Nfinal)*noise_var
     min_eig=np.min(np.real(np.linalg.eigvals(cov_K_noise)))
-
 cov_K_chol=np.linalg.cholesky(cov_K_noise)
+
 for ite in range(nsim1):
     prior=chol_sample(mean=np.zeros(Nfinal), cov_chol=cov_K_chol)
     g_mk,curloglike=elliptical_slice(g_mk.reshape(1,-1),prior,log_lik,pdf_params=[K],cur_lnpdf=None,angle_range=None)
@@ -177,4 +170,3 @@ integral_truth=(comp1+comp2)*c
 integral_mean=np.mean(g_mk_list3)
 integral_sd=np.sqrt(np.cov(g_mk_list3))
 np.savez('/output/simulation/mymethodfinal3/ESSsyn1_truthmle'+sys.argv[1]+'.npz', aaa=g_mk_list3,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,b=x,e=intensity,g=theta0,h=theta1,i=noise_var,m=integral_truth,n=integral_mean,o=integral_sd,q=timerun2)
-
