@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # coding: utf-8
-
 from scipy.stats import expon
 from scipy.stats import uniform
 from scipy.stats import norm
@@ -45,13 +44,10 @@ for jjj in range(200):
     l2_dist2_1[jjj]=l2_dist1
     coverage2_1[jjj]=coverage1
     width2_1[jjj]=width1
-
     l2_dist2_2[jjj]=l2_dist2
     coverage2_2[jjj]=coverage2
     width2_2[jjj]=width2
     timerun2_2[jjj]=timerun2
-
-
 
 for k in ([0,100]):
     print([np.round(np.quantile(l2_dist2_1[k:(k+100)], 0.5, axis=0),2)[0],
@@ -60,14 +56,12 @@ for k in ([0,100]):
            np.round(np.quantile(l2_dist2_1[k:(k+100)], 0.75, axis=0),2)[0],
            np.round(np.quantile(l2_dist2_1[k:(k+100)], 0.975, axis=0),2)[0]
           ])
-    
-    
+      
     print([np.round(np.quantile(coverage2_1[k:(k+100)], 0.5, axis=0),2)[0],
          np.round(np.quantile(coverage2_1[k:(k+100)], 0.025, axis=0),2)[0],
           np.round(np.quantile(coverage2_1[k:(k+100)], 0.25, axis=0),2)[0],
           np.round(np.quantile(coverage2_1[k:(k+100)], 0.75, axis=0),2)[0],
           np.round(np.quantile(coverage2_1[k:(k+100)], 0.975, axis=0),2)[0]])
-    
     
     print([np.round(np.quantile(width2_1[k:(k+100)], 0.5, axis=0),2)[0],
           np.round(np.quantile(width2_1[k:(k+100)], 0.025, axis=0),2)[0],
@@ -75,13 +69,11 @@ for k in ([0,100]):
            np.round(np.quantile(width2_1[k:(k+100)], 0.75, axis=0),2)[0],
            np.round(np.quantile(width2_1[k:(k+100)], 0.975, axis=0),2)[0]])
            
-    
     print([np.round(np.quantile(l2_dist2_2[k:(k+100)], 0.5, axis=0),2)[0],
           np.round(np.quantile(l2_dist2_2[k:(k+100)], 0.025, axis=0),2)[0],
           np.round(np.quantile(l2_dist2_2[k:(k+100)], 0.25, axis=0),2)[0],
           np.round(np.quantile(l2_dist2_2[k:(k+100)], 0.75, axis=0),2)[0],
           np.round(np.quantile(l2_dist2_2[k:(k+100)], 0.975, axis=0),2)[0]])
-    
     
     print([np.round(np.quantile(coverage2_2[k:(k+100)], 0.5, axis=0),2)[0],
           np.round(np.quantile(coverage2_2[k:(k+100)], 0.025, axis=0),2)[0],
@@ -89,15 +81,11 @@ for k in ([0,100]):
           np.round(np.quantile(coverage2_2[k:(k+100)], 0.75, axis=0),2)[0],
     np.round(np.quantile(coverage2_2[k:(k+100)], 0.975, axis=0),2)[0]])
     
-    
     print([np.round(np.quantile(width2_2[k:(k+100)], 0.5, axis=0),2)[0],
           np.round(np.quantile(width2_2[k:(k+100)], 0.025, axis=0),2)[0],
            np.round(np.quantile(width2_2[k:(k+100)], 0.25, axis=0),2)[0],
            np.round(np.quantile(width2_2[k:(k+100)], 0.75, axis=0),2)[0],
            np.round(np.quantile(width2_2[k:(k+100)], 0.975, axis=0),2)[0]])
            
-    
     print( [np.round(np.mean(timerun2_2[k:(k+100)]),2),  np.round(np.std(timerun2_2[k:(k+100)]) ,2) ])
-    
-    
     
