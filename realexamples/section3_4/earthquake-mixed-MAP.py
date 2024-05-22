@@ -1,14 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[2]:
-
 from scipy.stats import expon
 from scipy.stats import uniform
 from scipy.stats import norm
@@ -29,12 +18,10 @@ import sys
 data = np.load('/earthquakes/earthquakes.npz')
 points_inhomo=list(data['a'])
 points_inhomo=np.array(points_inhomo)
-
 T=365
 theta0= 4.135945
 theta1=4.756541e-05
 days=[0,281,288,295,302,309,316,323,330,337,344,351,358,365]
-
 counts=[]
 counts.append(((281 <= points_inhomo) & (points_inhomo < 288)).sum())
 counts.append(((288 <= points_inhomo) & (points_inhomo < 295)).sum())
@@ -48,7 +35,6 @@ counts.append(((337 <= points_inhomo) & (points_inhomo < 344)).sum())
 counts.append(((344 <= points_inhomo) & (points_inhomo < 351)).sum())
 counts.append(((351 <= points_inhomo) & (points_inhomo < 358)).sum())
 counts.append(((358 <= points_inhomo) & (points_inhomo < 365)).sum())
-
 recurrent=points_inhomo[points_inhomo<281]
 
 def expo_quad_kernel(theta0,theta1,xn,xm): # 1,0.1
@@ -57,18 +43,15 @@ def expo_quad_kernel(theta0,theta1,xn,xm): # 1,0.1
 def expo_quad_kernel2(theta0,theta1,xn,t1,t2): # 1,0.1
     return np.sqrt(np.pi/2/theta1)*theta0*(math.erf(np.sqrt(theta1/2)*(t2-xn))-math.erf(np.sqrt(theta1/2)*(t1-xn)))
 
-
 def expo_quad_kernel3(theta0,theta1,t1,t2,t3,t4): # 1,0.1
-    return  np.sqrt(np.pi/2/theta1)*theta0*(    (t2-t3)*math.erf(  np.sqrt(theta1/2) *(t2-t3)    )- (t2-t4)*math.erf(  np.sqrt(theta1/2) *(t2-t4)    )
-                                            -(t1-t3)*math.erf(   np.sqrt(theta1/2) *(t1-t3)        )+  (t1-t4)*math.erf(  np.sqrt(theta1/2) *(t1-t4)    ))+theta0/theta1*( np.exp(  -theta1/2*(t2-t3)**2    ) -np.exp(  -theta1/2*(t1-t3)**2    )  - np.exp(  -theta1/2*(t2-t4)**2    ) 
-                +np.exp(  -theta1/2*(t1-t4)**2    ))
+    return  np.sqrt(np.pi/2/theta1)*theta0*((t2-t3)*math.erf(np.sqrt(theta1/2)*(t2-t3))-(t2-t4)*math.erf(np.sqrt(theta1/2)*(t2-t4))
+            -(t1-t3)*math.erf(np.sqrt(theta1/2)*(t1-t3))+(t1-t4)*math.erf(np.sqrt(theta1/2)*(t1-t4)))+theta0/theta1*(np.exp(-theta1/2*(t2-t3)**2)-np.exp(-theta1/2*(t1-t3)**2)-np.exp(-theta1/2*(t2-t4)**2) 
+                +np.exp(-theta1/2*(t1-t4)**2))
     
 
 def chol_sample(mean, cov_chol):
-    #return mean + np.linalg.cholesky(cov) @ np.random.standard_normal(mean.size)
     return mean + cov_chol @ np.random.standard_normal(mean.size)
-
-    
+  
 def log_lik(f,ns):
     #ns is # of Ngrids
     if np.prod(f>0)==0:
@@ -76,7 +59,6 @@ def log_lik(f,ns):
     else:
         return np.sum(np.log(f[:,Ngrid:Ngrid+ns])) -np.sum(f[:,(Ngrid+ns):Nfinal])+np.sum(  counts*np.log( f[:,(Ngrid+ns+1):Nfinal] ) )
     
-
 def elliptical_slice(initial_theta,prior,lnpdf,pdf_params=(),
                      cur_lnpdf=None,angle_range=None):
     """
@@ -146,17 +128,14 @@ def elliptical_slice(initial_theta,prior,lnpdf,pdf_params=(),
         phi = np.random.uniform()*(phi_max - phi_min) + phi_min
     return (xx_prop,cur_lnpdf)
 
-
 K=len(counts)
 N=len(recurrent)+1
 Ngrid=100
 x4=np.linspace(0,T,Ngrid+1)[1:Ngrid+1] 
 xxx=np.concatenate([x4, points_inhomo])
-
 Nfinal=Ngrid+K+N
 g_mk=3+np.zeros(Nfinal)
 g_mk[Ngrid+N-1]=3*281
-
 cov_K=np.zeros((Nfinal,Nfinal))
 noise_var=1e-13
 nsim1=10000
@@ -181,23 +160,17 @@ while(min_eig<1e-10):
     min_eig=np.min(np.real(np.linalg.eigvals(cov_K_noise)))
     
 cov_K_chol= np.linalg.cholesky(cov_K_noise)
-
 for ite in range(nsim1):
-    if (ite%10000==0):
-        print(ite)#cov_K is the covariance matrix
     prior=chol_sample(mean=np.zeros(Nfinal), cov_chol=cov_K_chol)#nu
     g_mk,curloglike=elliptical_slice(g_mk.reshape(1,-1),prior,log_lik,pdf_params=[N-1],cur_lnpdf=None,angle_range=None)
 
 g_mk_list2=[]
 g_mk_list3=[]
 for ite in range(nsim2):
-    if (ite%10000==0):
-        print(ite)#cov_K is the covariance matrix
     prior=chol_sample(mean=np.zeros(Nfinal), cov_chol=cov_K_chol)#nu
     g_mk,curloglike=elliptical_slice(g_mk.reshape(1,-1),prior,log_lik,pdf_params=[N-1],cur_lnpdf=None,angle_range=None)
     g_mk_list2.append(g_mk[0][0:Ngrid])
     g_mk_list3.append(g_mk[0][Ngrid:Nfinal])
-
 
 data=np.load('/output/graphs2/real2/real2_priormle.npz')
 g_mk_list3_rec=data['aaa']
@@ -234,4 +207,3 @@ plt.savefig("/output/graphs2/real5/MAP_median.pdf",bbox_inches='tight')
 plt.show()
 
 np.savez('/output/graphs2/real5/MAP.npz', aaa=g_mk_list3,aa=g_mk_list2,c=points_inhomo,d=x4,e=theta0,f=theta1)
-
