@@ -16,7 +16,7 @@ import time
 import sys
 import pickle
 
-data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')
+data = pyreadr.read_r('syndata/data_'+sys.argv[1]+'.rda')
 points_inhomo = list(np.array(data["dataa"]).squeeze())
 T=5
 noise_var=1e-3
