@@ -17,9 +17,9 @@ import time
 import sys
 import pickle
 
-data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda') #args[1] range from 1 to 300
+data = pyreadr.read_r('syndata/data_'+sys.argv[1]+'.rda') #args[1] range from 1 to 300
 points_inhomo = list(np.array(data["dataa"]).squeeze())
-hyperpara=(pyreadr.read_r('/MAP/func1_priorest'+sys.argv[1]+'.rda')["b"]).squeeze()
+hyperpara=(pyreadr.read_r('MAP/func1_priorest'+sys.argv[1]+'.rda')["b"]).squeeze()
 theta0=hyperpara[0]
 theta1=hyperpara[1]
 c=math.ceil(int(sys.argv[1])/100)
