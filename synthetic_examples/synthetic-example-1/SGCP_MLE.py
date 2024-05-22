@@ -16,6 +16,16 @@ import pyreadr
 import time
 import sys
 
+data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')
+points_inhomo = list(np.array(data["dataa"]).squeeze())
+hyperpara=(pyreadr.read_r('MLE.rda')["groundhypest"]).squeeze()
+theta0=hyperpara[0][int(sys.argv[1])-1]
+theta1=hyperpara[1][int(sys.argv[1])-1]
+c=math.ceil(int(sys.argv[1])/100)
+measure_sup=3*c
+noise_var=1e-4
+T=50
+
 def expo_quad_kernel(theta0,theta1,xn,xm): # 1,0.1
     return theta0*np.exp(-theta1/2*np.sum((xn - xm)**2))
 
@@ -94,17 +104,6 @@ def GP_regression_one_pred(xi,yi,theta0,theta1,noise_var,x_pred):
     
     return mean,std_dev
 
-data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')
-points_inhomo = list(np.array(data["dataa"]).squeeze())
-
-hyperpara=(pyreadr.read_r('MLE.rda')["groundhypest"]).squeeze()
-theta0=hyperpara[0][int(sys.argv[1])-1]
-theta1=hyperpara[1][int(sys.argv[1])-1]
-c=math.ceil(int(sys.argv[1])/100)
-measure_sup=3*c
-noise_var=1e-4
-
-T=50
 def sampling_M(M,s_m,g_mk,measure_sup,T,theta0,theta1,noise_var):
     temp=uniform.rvs(0,1)
     if temp<=0.5: ## M-->M+1
@@ -300,18 +299,13 @@ l2_dist2=sum((np.array(med).squeeze()-truth)**2)
 coverage2=np.sum((truth>=low.squeeze()) * (truth<=high.squeeze()))/Ngrid
 width2=sum(high-low)/Ngrid
 
-
-np.savez('/output/simulation/adam1_1/syn1_truthmle_'+sys.argv[1]+'.npz', aaa=M_list,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,
+np.savez('/output/simulation/adam1_1/truthmle/syn1/syn1_truthmle_'+sys.argv[1]+'.npz', aaa=M_list,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,
     e=theta0,f=theta1,g=measure_sup,h=noise_var,i=coverage1,j=coverage2,k=l2_dist1,l=l2_dist2,m=width1,n=width2,o=timerun1,p=timerun2)
 
-
 import pickle
-with open("/output/simulation/adam1_1/syn1_truthmle1_"+sys.argv[1]+".bin", "wb") as output:
+with open("/output/simulation/adam1_1/truthmle/syn1/syn1_truthmle1_"+sys.argv[1]+".bin", "wb") as output:
     pickle.dump(g_mk_list, output)
 
-#with open("/output/nut/plot/AdamMH.bin", "rb") as data:
-#    g_mk_list = pickle.load(data)
-
-with open("/output/simulation/adam1_1/syn1_truthmle2_"+sys.argv[1]+".bin", "wb") as output:
+with open("/output/simulation/adam1_1/truthmle/syn1/syn1_truthmle2_"+sys.argv[1]+".bin", "wb") as output:
     pickle.dump(s_m_list, output)
 
