@@ -12,12 +12,11 @@ from scipy.stats import truncnorm
 import math
 from scipy.stats import mvn
 np.set_printoptions(suppress=True)
-
 import pyreadr
 import time
 import sys
 
-data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')
+data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda') #args[1] range from 1 to 300
 points_inhomo = np.array(data["dataa"]).squeeze()
 T=50
 bin_num=1000
@@ -35,16 +34,13 @@ def expo_quad_kernel3(T): # 1,0.1
     return (T**3/3)
 
 def chol_sample(mean, cov_chol):
-    #return mean + np.linalg.cholesky(cov) @ np.random.standard_normal(mean.size)
     return mean + cov_chol @ np.random.standard_normal(mean.size)
 
 def log_lik(f,ns):
     if np.prod(f>0)==0:
         return float('-inf') 
     else:
-        #print(f[:,0:ns].shape)
         return np.sum(np.log(f[:,Ngrid:Ngrid+ns]))-f[:,Ngrid+ns]
-
 
 def elliptical_slice(initial_theta,prior,lnpdf,pdf_params=(),
                      cur_lnpdf=None,angle_range=None):
@@ -115,7 +111,6 @@ def elliptical_slice(initial_theta,prior,lnpdf,pdf_params=(),
         phi = np.random.uniform()*(phi_max - phi_min) + phi_min
     return (xx_prop,cur_lnpdf)
 
-
 K=len(points_inhomo)
 N=K+1
 Ngrid=100
@@ -141,6 +136,7 @@ for i in range(Nfinal):
             cov_K[i][j]=expo_quad_kernel3(T)  
         if j!=i:
             cov_K[j][i]=cov_K[i][j]
+
 cov_K_inv=np.linalg.inv(cov_K+np.eye(Nfinal)*noise_var)
 ones_vec=np.ones(Nfinal)
 ones_vec[Nfinal-1]=T
@@ -195,4 +191,3 @@ integral_truth=(comp1+comp2)*c
 integral_mean=np.mean(g_mk_list3[nsim1:])
 integral_sd=np.sqrt(np.cov(g_mk_list3[nsim1:]))
 np.savez('/output/simulation/mymethod_BM1_5_4/ESSsyn1_BM1_'+sys.argv[1]+'.npz', aaa=g_mk_list3,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,b=x,e=intensity,f=coverage1,ff=coverage2,i=noise_var,j=l2_dist1,jj=l2_dist2,m=integral_truth,n=integral_mean,o=integral_sd,p=timerun,q=width1,r=width2,s=theta_list)
-
