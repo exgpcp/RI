@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[100]:
-
-
 from scipy.stats import expon
 from scipy.stats import uniform
 from scipy.stats import norm
@@ -19,9 +16,6 @@ import pyreadr
 import time
 import sys
 
-# In[103]:
-
-
 def expo_quad_kernel(theta0,theta1,xn,xm): # 1,0.1
     return theta0*np.exp(-theta1/2*np.sum((xn - xm)**2))
 
@@ -36,7 +30,6 @@ def sigmoid(x): #"Numerically-stable sigmoid function."
             result=np.append(result, z / (1 + z))
     return result
 
-
 def GP_regression(xi,yi,theta0,theta1,noise_var,rang,num_points):
     N=len(xi)
     cov_K=np.zeros((N,N))
@@ -50,8 +43,7 @@ def GP_regression(xi,yi,theta0,theta1,noise_var,rang,num_points):
         min_eig=np.min(np.real(np.linalg.eigvals(cov_K)))
     
     cov_K_noise=cov_K+np.eye(N)*noise_var
-    
-    x1=np.linspace(0,rang,num_points+1)      # prediction points, integer is to make it easy
+    x1=np.linspace(0,rang,num_points+1)     
     M=len(x1)-1
     mean=np.zeros((1,M))[0]
     posterior_cov=np.zeros((M,M))
@@ -91,7 +83,6 @@ def GP_regression_one_pred(xi,yi,theta0,theta1,noise_var,x_pred):
         min_eig=np.min(np.real(np.linalg.eigvals(cov_K_noise)))
         if i>10: break
     
-    # prediction point
     k_vec=np.array([])
     for i in range(N):
         k_vec=np.append(k_vec,expo_quad_kernel(theta0,theta1,x_pred,xi[i]))
@@ -104,29 +95,18 @@ def GP_regression_one_pred(xi,yi,theta0,theta1,noise_var,x_pred):
     return mean,std_dev
 
 
-
-
-
-
-data = pyreadr.read_r('/scratch/groups/juliapr/output_Bingjing/data2/data_'+sys.argv[1]+'.rda')
+data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')
 points_inhomo = list(np.array(data["dataa"]).squeeze())
 
-hyperpara=(pyreadr.read_r('/scratch/groups/juliapr/output_Bingjing/priorestnew3/func2_priorest'+sys.argv[1]+'.rda')["b"]).squeeze()
-
+hyperpara=(pyreadr.read_r('/MAP/func2_priorest'+sys.argv[1]+'.rda')["b"]).squeeze()
 theta0=hyperpara[0]
 theta1=hyperpara[1]
-
 T=5
-
 noise_var=1e-3
 c=math.ceil(int(sys.argv[1])/100)-3
 measure_sup=21*c
 def inten2(t):
     return 10+t-t
-
-
-
-
 
 def sampling_M(M,s_m,g_mk,measure_sup,T,theta0,theta1,noise_var):
     temp=uniform.rvs(0,1)
@@ -174,33 +154,18 @@ def sampling_s_m(M,s_m,g_mk,measure_sup,T,theta0,theta1,noise_var):
             assert len(g_mk)==M+K
     return M, s_m, g_mk
 
-
-
-
-
-
-
-
-M=20    ## initial
+M=20   
 K=len(points_inhomo)
 s_m=np.linspace(1,T-1,M)
 g_mk=np.zeros((M+K))## 0--(K-1) observe K--last unobserve
 
-
-# In[104]:
-
-
 def chol_sample(mean, cov,jit):
     return mean + np.linalg.cholesky(cov+np.diag(np.full(cov.shape[0], jit))) @ np.random.standard_normal(mean.size)
-
 
 def log_lik_adam(f,ns,cov_inv):
     #ns is len(points_inhomo)
     #f[0:ns] is observations
     #f[ns:] is thinned
-    #print(-0.5*f@cov_inv@f.transpose()-np.sum(np.log(1+np.exp(-f[0][0:ns])))-np.sum(np.log(1+np.exp(f[0][ns:]))))
-    #print(-0.5*f@cov_inv@f.transpose()-np.sum(np.log(1+np.exp(-f[:,0:ns])))-np.sum(np.log(1+np.exp(f[:,ns:]))))
-    #comp1=-0.5*f@cov_inv@f.transpose()
     return -np.sum(np.log(1+np.exp(-f[:,0:ns])))-np.sum(np.log(1+np.exp(f[:,ns:])))
     
 def elliptical_slice_adam(initial_theta,prior,lnpdf,pdf_params=(),
@@ -278,8 +243,6 @@ nsim1=10000
 nsim2=10000
 start_time1=time.time()
 for k in range(nsim1):
-    #print(k)
-    
     M,s_m,g_mk=sampling_M(M,s_m,g_mk.squeeze(),measure_sup,T,theta0,theta1,noise_var)
     M,s_m,g_mk=sampling_s_m(M,s_m,g_mk.squeeze(),measure_sup,T,theta0,theta1,noise_var) # sampling s_m
     #M,s_m,g_mk=sampling_g_mk(M,s_m,g_mk,measure_sup,T,theta0,theta1,noise_var) # sampling g_mk
@@ -295,8 +258,6 @@ for k in range(nsim1):
     g_mk,curloglike=elliptical_slice_adam(g_mk.reshape(1,-1),prior,log_lik_adam,pdf_params=[K,cov_K_noise_inv],cur_lnpdf=None,angle_range=None)
 timerun1=time.time()-start_time1
 
-# In[106]:
-
 M_list=[] 
 s_m_list=[]
 g_mk_list3=[]
@@ -305,8 +266,6 @@ g_mk_list=[]
 Ngrid=100
 start_time2=time.time()
 for k in range(nsim2):
-    #print(k)
-    
     M,s_m,g_mk=sampling_M(M,s_m,g_mk.squeeze(),measure_sup,T,theta0,theta1,noise_var)
     M,s_m,g_mk=sampling_s_m(M,s_m,g_mk.squeeze(),measure_sup,T,theta0,theta1,noise_var) # sampling s_m
     #M,s_m,g_mk=sampling_g_mk(M,s_m,g_mk,measure_sup,T,theta0,theta1,noise_var) # sampling g_mk
@@ -353,16 +312,13 @@ coverage2=np.sum((truth>=low.squeeze()) * (truth<=high.squeeze()))/Ngrid
 width2=sum(high-low)/Ngrid
 
 
-np.savez('/scratch/groups/juliapr/output_Bingjing/simulation/adam1_1/syn2_priormle_'+sys.argv[1]+'.npz', aaa=M_list,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,
+np.savez('/output/simulation/adam1_1/syn2_priormle_'+sys.argv[1]+'.npz', aaa=M_list,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,
     e=theta0,f=theta1,g=measure_sup,h=noise_var,i=coverage1,j=coverage2,k=l2_dist1,l=l2_dist2,m=width1,n=width2,o=timerun1,p=timerun2)
 
 
 import pickle
-with open("/scratch/groups/juliapr/output_Bingjing/simulation/adam1_1/syn2_priormle1_"+sys.argv[1]+".bin", "wb") as output:
+with open("/output/simulation/adam1_1/syn2_priormle1_"+sys.argv[1]+".bin", "wb") as output:
     pickle.dump(g_mk_list, output)
 
-#with open("/scratch/groups/juliapr/output_Bingjing/nut/plot/AdamMH.bin", "rb") as data:
-#    g_mk_list = pickle.load(data)
-
-with open("/scratch/groups/juliapr/output_Bingjing/simulation/adam1_1/syn2_priormle2_"+sys.argv[1]+".bin", "wb") as output:
+with open("/output/simulation/adam1_1/syn2_priormle2_"+sys.argv[1]+".bin", "wb") as output:
     pickle.dump(s_m_list, output)
