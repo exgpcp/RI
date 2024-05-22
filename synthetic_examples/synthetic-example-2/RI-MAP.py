@@ -19,7 +19,7 @@ import sys
 
 data = pyreadr.read_r('syndata/data_'+sys.argv[1]+'.rda') #args[1] range from 301 to 600
 points_inhomo = np.array(data["dataa"]).squeeze()
-hyperpara=(pyreadr.read_r('/MAP/func2_priorest'+sys.argv[1]+'.rda')["b"]).squeeze()
+hyperpara=(pyreadr.read_r('MAP/func2_priorest'+sys.argv[1]+'.rda')["b"]).squeeze()
 theta0=hyperpara[0]
 theta1=hyperpara[1]
 T=5
