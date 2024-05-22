@@ -12,7 +12,16 @@ library(Matrix)
 library(base)
 library(mvtnorm)
 library(truncnorm)
-#library(mlegp)
+
+nam <- paste0("syndata/data_",args[1])
+points_inhomo=get(nam)
+noise_var=1e-5
+ccc=4
+N=length(points_inhomo)
+T1=50
+T2=5
+T=T2
+results=matrix(0,10,3)
 
 expo_quad_kernel<-function(theta00,theta11,xn,xm){ 
   return(theta00*exp(-theta11/2*sum((xn - xm)**2)))
@@ -33,26 +42,6 @@ inten1<-function(x){
 inten2<-function(x){
   return(10+x-x)
 }
-
-#measure_sup1=3 #supreme
-T1=50
-#bin_num1=1000
-#x1=seq(0,T1,length.out=bin_num1)
-#intensity1=inten1(x1)
-
-#measure_sup2=11 #supreme
-T2=5
-#bin_num2=1000
-#x2=seq(0,T2,length.out=bin_num2)
-#intensity2=inten2(x2)
-
-nam <- paste0("syndata/data_",args[1])
-points_inhomo=get(nam)
-noise_var=1e-5
-ccc=4
-N=length(points_inhomo)
-T=T2
-results=matrix(0,10,3)
 
 for (mm in 1:10){
   delta_m=T/(mm-1)
@@ -132,10 +121,6 @@ index=which.min(results[,3])
 a=results[index,1:2]
 b=c(a,index)
 save(b, file =paste0( "/MAP/func2_priorest",args[1],".rda"))
-
-
-
-
 
 
 
