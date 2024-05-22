@@ -16,7 +16,7 @@ import sys
 import pickle
 
 T=50
-data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')
+data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda') #args[1] range from 1 to 300
 points_inhomo = list(np.array(data["dataa"]).squeeze())
 c=math.ceil(int(sys.argv[1])/100)
 measure_sup=3*c
@@ -38,7 +38,7 @@ def sigmoid(x): #"Numerically-stable sigmoid function."
 
 def GP_regression(xi,yi,tau,noise_var,rang,num_points):
     N=len(xi)
-    x1=np.linspace(0,rang,num_points+1)[:num_points]     # prediction points, integer is to make it easy
+    x1=np.linspace(0,rang,num_points+1)[:num_points]   
     M=len(x1)
     loc=np.insert(xi, 0, x1)
     cov_K=np.zeros((N+M,N+M))
@@ -59,7 +59,7 @@ def GP_regression(xi,yi,tau,noise_var,rang,num_points):
     mean=np.dot(k_C,yi)
     k_matrix_pre=cov_K_mod[0:M,0:M]
     posterior_cov=k_matrix_pre/tau-np.dot(k_C,k_matrix.T)/tau+np.eye(M)*noise_var
-    min_eig=np.min(np.real(np.linalg.eigvals(posterior_cov))) # numerical float truncation error refine
+    min_eig=np.min(np.real(np.linalg.eigvals(posterior_cov))) 
     while(min_eig<0):
         posterior_cov += -10*min_eig*np.eye(posterior_cov.shape[0])
         min_eig=np.min(np.real(np.linalg.eigvals(posterior_cov)))
