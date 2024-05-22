@@ -304,15 +304,15 @@ l2_dist2=sum((np.array(med).squeeze()-truth)**2)
 coverage2=np.sum((truth>=low.squeeze()) * (truth<=high.squeeze()))/Ngrid
 width2=sum(high-low)/Ngrid
 
-np.savez('/output/simulation/adam1_1/syn1_BM_'+sys.argv[1]+'.npz', aaa=M_list,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,
+np.savez('/output/simulation/adam1_1/BM/syn1/syn1_BM_'+sys.argv[1]+'.npz', aaa=M_list,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,
     e=tau_list,g=measure_sup,h=noise_var,i=coverage1,j=coverage2,k=l2_dist1,l=l2_dist2,m=width1,n=width2,o=timerun1,p=timerun2)
 
 import pickle
-with open("/output/simulation/adam1_1/BM1_"+sys.argv[1]+".bin", "wb") as output:
+with open("/output/simulation/adam1_1/BM/syn1/BM1_"+sys.argv[1]+".bin", "wb") as output:
     pickle.dump(g_mk_list, output)
 
 #with open("/output/nut/plot/AdamMH.bin", "rb") as data:
 #    g_mk_list = pickle.load(data)
 
-with open("/output/simulation/adam1_1/BM2_"+sys.argv[1]+".bin", "wb") as output:
+with open("/output/simulation/adam1_1/BM/syn1/BM2_"+sys.argv[1]+".bin", "wb") as output:
     pickle.dump(s_m_list, output)
