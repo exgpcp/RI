@@ -24,7 +24,7 @@ timerun2_2=np.zeros((200,1))
 width2_1=np.zeros((200,1))
 width2_2=np.zeros((200,1))
 
-for jjj in range(200):
+for jjj in range(200):# Here is 200 instead of 300 because we are only avaible to obtain results for the first 200 datasets due to cluster running time limit. 
     data = np.load('/output/simulation/adam1_1/BM/syn2/syn2_BM_'+str(jjj+301)+'.npz')
     g_mk_list2=data['aa']
     g_mk_list=data['a']
