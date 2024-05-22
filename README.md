@@ -5,6 +5,7 @@ Include Python and R codes for simulations 3.1 and real examples 3.2, 3.3 and 3.
 ###########Simulations: synthetic-example-1
 
 sbatch Rcode.slurm
+
 sbatch Pythoncode.slurm
 
 all "table_results_*.py" could be run seperately to obtain results in table 1 and 2.
