@@ -16,9 +16,9 @@ import time
 import sys
 import pickle
 
-data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')
+data = pyreadr.read_r('syndata/data_'+sys.argv[1]+'.rda')
 points_inhomo = list(np.array(data["dataa"]).squeeze())
-hyperpara=(pyreadr.read_r('/MAP/func2_priorest'+sys.argv[1]+'.rda')["b"]).squeeze()
+hyperpara=(pyreadr.read_r('MAP/func2_priorest'+sys.argv[1]+'.rda')["b"]).squeeze()
 theta0=hyperpara[0]
 theta1=hyperpara[1]
 T=5
