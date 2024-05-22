@@ -4,3 +4,6 @@ library(spatstat)
 data(redwoodfull)
 str(redwoodfull)
 plot(redwoodfull$x,redwoodfull$y)
+
+"redwoods_BM.py" includes python codes for our proposed random integral method with Brownian motion covariance kernels (RI-BM).
+"redwoods_MAP.py" includes python codes for our proposed random integral method with squared exponential kernels (RI-MAP).
