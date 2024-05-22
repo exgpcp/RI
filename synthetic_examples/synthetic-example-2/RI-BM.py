@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # coding: utf-8
-
 from scipy.stats import expon
 from scipy.stats import uniform
 from scipy.stats import norm
@@ -18,7 +17,7 @@ import pyreadr
 import time
 import sys
 
-data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')
+data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')#args[1] range from 301 to 600
 points_inhomo = np.array(data["dataa"]).squeeze()
 T=5
 bin_num=1000
@@ -157,7 +156,6 @@ g_mk_list=[]
 g_mk_list2=[]
 g_mk_list3=[]
 theta_list=[]
-
 start_time=time.time()
 for ite in range(nsim1+nsim2):
     cov_K_chol_final=cov_K_mod_chol/np.sqrt(theta)
@@ -192,4 +190,3 @@ integral_mean=np.mean(g_mk_list3[nsim1:])
 integral_sd=np.sqrt(np.cov(g_mk_list3[nsim1:]))
 
 np.savez('/output/simulation/mymethod_BM1_5_4/ESSsyn2_BM1_'+sys.argv[1]+'.npz', aaa=g_mk_list3,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,b=x,e=intensity,f=coverage1,ff=coverage2,i=noise_var,j=l2_dist1,jj=l2_dist2,m=integral_truth,n=integral_mean,o=integral_sd,p=timerun,q=width1,r=width2,s=theta_list)
-
