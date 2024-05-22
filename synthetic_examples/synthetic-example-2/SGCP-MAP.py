@@ -312,13 +312,13 @@ coverage2=np.sum((truth>=low.squeeze()) * (truth<=high.squeeze()))/Ngrid
 width2=sum(high-low)/Ngrid
 
 
-np.savez('/output/simulation/adam1_1/syn2_priormle_'+sys.argv[1]+'.npz', aaa=M_list,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,
+np.savez('/output/simulation/adam1_1/priormle/syn2/syn2_priormle_'+sys.argv[1]+'.npz', aaa=M_list,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,
     e=theta0,f=theta1,g=measure_sup,h=noise_var,i=coverage1,j=coverage2,k=l2_dist1,l=l2_dist2,m=width1,n=width2,o=timerun1,p=timerun2)
 
 
 import pickle
-with open("/output/simulation/adam1_1/syn2_priormle1_"+sys.argv[1]+".bin", "wb") as output:
+with open("/output/simulation/adam1_1/priormle/syn2/syn2_priormle1_"+sys.argv[1]+".bin", "wb") as output:
     pickle.dump(g_mk_list, output)
 
-with open("/output/simulation/adam1_1/syn2_priormle2_"+sys.argv[1]+".bin", "wb") as output:
+with open("/output/simulation/adam1_1/priormle/syn2/syn2_priormle2_"+sys.argv[1]+".bin", "wb") as output:
     pickle.dump(s_m_list, output)
