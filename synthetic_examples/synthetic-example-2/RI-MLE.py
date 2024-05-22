@@ -48,10 +48,6 @@ def chol_sample(mean, cov_chol):
     return mean + cov_chol @ np.random.standard_normal(mean.size)
 
 def log_lik(f,ns):
-    #x=pdf_params[0]
-    #ns=pdf_params[1]
-    #pr=scipy.stats.norm.logpdf(x[:,1],mu_y+rho0*math.sqrt(sigmasq_y)/math.sqrt(sigmasq_x)*(x[:,0]-mu_x) ,math.sqrt(sigmasq_y*(1-rho0**2)))
-    
     if np.prod(f>0)==0:
         return float('-inf') 
     else:
@@ -182,7 +178,6 @@ timerun2=time.time()-start_time2
 
 
 #l_2 norm between mean posterior and true intensity on the 100 grid points
-
 pos_mean=np.average(g_mk_list2,axis=0)
 truth=c*(10+xxx-xxx)
 l_2norm=np.sqrt(sum((np.array(pos_mean).squeeze()-truth)**2)*0.05)
@@ -198,5 +193,5 @@ integral_mean=np.mean(g_mk_list3)
 integral_sd=np.sqrt(np.cov(g_mk_list3))
 
 
-np.savez('/output/simulation/syn2mle/ESSsyn2_truthmle'+sys.argv[1]+'.npz', aaa=g_mk_list3,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,b=x,e=intensity,f=coverage,g=theta0,h=theta1,i=noise_var,j=l_2norm,m=integral_truth,n=integral_mean,o=integral_sd,p=timerun1,q=timerun2)
+np.savez('/output/simulation/mymethodfinal3/ESSsyn2_truthmle'+sys.argv[1]+'.npz', aaa=g_mk_list3,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,b=x,e=intensity,f=coverage,g=theta0,h=theta1,i=noise_var,j=l_2norm,m=integral_truth,n=integral_mean,o=integral_sd,p=timerun1,q=timerun2)
 
