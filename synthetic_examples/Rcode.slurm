@@ -6,4 +6,4 @@
 #SBATCH -p hns
 
 ml R/4.2.0
-Rscript weighted MAP for hyperparameters.R $SLURM_ARRAY_TASK_ID
+Rscript weighted_MAP_for_hyperparameters.R $SLURM_ARRAY_TASK_ID
