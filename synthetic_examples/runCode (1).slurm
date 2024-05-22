@@ -6,4 +6,4 @@
 #SBATCH -p stat
 
 ml R/4.2.0
-Rscript priorest.R $SLURM_ARRAY_TASK_ID
+Rscript weighted MAP for hyperparameters.R $SLURM_ARRAY_TASK_ID
