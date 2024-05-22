@@ -13,7 +13,7 @@ all "table_results_*.py" could be run seperately to obtain results in table 1 an
 
 ##########Real examples:
 
-run each xxx.py seperately
+run each xxx.py seperately.
 
 
 
