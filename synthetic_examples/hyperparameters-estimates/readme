@@ -1,2 +1,2 @@
-MLE.rda includes estimates for the hyperparameters in squared exponential kernel for 600 synthetic datasets contained in syndata.zip.
-MAP.zip includes estimates for the hyperparamters in squared exponential kernel for 600 synthetic datasets constained in syndata.zip.
+MLE.rda includes estimates for the hyperparameters in squared exponential kernel for 600 synthetic datasets contained in syndata.zip, which are results of performing the Rcode "Oracle MLE for hyperparamters.R".
+MAP.zip includes estimates for the hyperparamters in squared exponential kernel for 600 synthetic datasets constained in syndata.zip, which are results of performing the Rcode "weighted MAP for hyperparameters.R".
