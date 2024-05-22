@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # coding: utf-8
-
 from scipy.stats import expon
 from scipy.stats import uniform
 from scipy.stats import norm
@@ -15,6 +14,17 @@ import math
 import pyreadr
 import time
 import sys
+import pickle
+
+data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')
+points_inhomo = list(np.array(data["dataa"]).squeeze())
+hyperpara=(pyreadr.read_r('/MAP/func2_priorest'+sys.argv[1]+'.rda')["b"]).squeeze()
+theta0=hyperpara[0]
+theta1=hyperpara[1]
+T=5
+noise_var=1e-3
+c=math.ceil(int(sys.argv[1])/100)-3
+measure_sup=21*c
 
 def expo_quad_kernel(theta0,theta1,xn,xm): # 1,0.1
     return theta0*np.exp(-theta1/2*np.sum((xn - xm)**2))
@@ -94,17 +104,6 @@ def GP_regression_one_pred(xi,yi,theta0,theta1,noise_var,x_pred):
     
     return mean,std_dev
 
-
-data = pyreadr.read_r('/syndata/data_'+sys.argv[1]+'.rda')
-points_inhomo = list(np.array(data["dataa"]).squeeze())
-
-hyperpara=(pyreadr.read_r('/MAP/func2_priorest'+sys.argv[1]+'.rda')["b"]).squeeze()
-theta0=hyperpara[0]
-theta1=hyperpara[1]
-T=5
-noise_var=1e-3
-c=math.ceil(int(sys.argv[1])/100)-3
-measure_sup=21*c
 def inten2(t):
     return 10+t-t
 
@@ -237,8 +236,6 @@ def elliptical_slice_adam(initial_theta,prior,lnpdf,pdf_params=(),
         phi = np.random.uniform()*(phi_max - phi_min) + phi_min
     return (xx_prop,cur_lnpdf)
 
-# In[105]:
-
 nsim1=10000
 nsim2=10000
 start_time1=time.time()
@@ -304,19 +301,15 @@ inten_est2=measure_sup/(1+np.exp(-np.array(g_mk_list2)))
 low=np.quantile(inten_est2, 0.025, axis=0)
 med=np.quantile(inten_est2, 0.5, axis=0)
 high=np.quantile(inten_est2, 0.975, axis=0)
-
 truth=10+xxx-xxx
 truth=c*truth
 l2_dist2=sum((np.array(med).squeeze()-truth)**2)
 coverage2=np.sum((truth>=low.squeeze()) * (truth<=high.squeeze()))/Ngrid
 width2=sum(high-low)/Ngrid
 
-
 np.savez('/output/simulation/adam1_1/priormle/syn2/syn2_priormle_'+sys.argv[1]+'.npz', aaa=M_list,aa=g_mk_list2,a=g_mk_list,c=points_inhomo,d=xxx,
     e=theta0,f=theta1,g=measure_sup,h=noise_var,i=coverage1,j=coverage2,k=l2_dist1,l=l2_dist2,m=width1,n=width2,o=timerun1,p=timerun2)
 
-
-import pickle
 with open("/output/simulation/adam1_1/priormle/syn2/syn2_priormle1_"+sys.argv[1]+".bin", "wb") as output:
     pickle.dump(g_mk_list, output)
 
